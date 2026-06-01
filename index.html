@@ -79,9 +79,10 @@ body{
 }
 
 .actions button{
-    flex:1;
-    min-width:120px;
-    padding:14px;
+    flex: 1 1 120px;   /* IMPORTANT */
+    max-width: 160px;
+
+    padding:12px;
     border:none;
     border-radius:14px;
     background:linear-gradient(135deg,#22c55e,#16a34a);
@@ -92,7 +93,6 @@ body{
     transition:.25s;
     box-shadow:0 4px 15px rgba(34,197,94,.25);
 }
-
 .actions button:hover{
     transform:translateY(-3px);
 }
@@ -227,12 +227,11 @@ input::placeholder{
     backdrop-filter: blur(12px);
     padding: 10px;
 
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 
-    max-width: 900px;
-    margin: 0 auto;
+    justify-content: center;
 }
   
 </style>
