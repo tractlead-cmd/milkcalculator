@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Milk Purchase Calculator</title>
+<style>
+:root{--bg:#111827;--card:#1f2937;--text:#fff;--accent:#22c55e}
+body.light{--bg:#f5f5f5;--card:#fff;--text:#111}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+.header{position:sticky;top:0;background:var(--bg);padding:12px;z-index:10}
+.total{font-size:32px;color:var(--accent);font-weight:bold}
+.tabs{display:flex;gap:8px;padding:10px}
+.tab{flex:1;padding:12px;border:none;border-radius:10px}
+.section{display:none;padding:10px}
+.section.active{display:block}
+.card{background:var(--card);padding:12px;margin:10px 0;border-radius:12px}
+input{width:100%;padding:10px;font-size:18px}
+.row{display:flex;justify-content:space-between}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:10px}
+button{padding:10px;border-radius:10px;border:none;cursor:pointer}
+.small{font-size:14px}
+</style>
+</head>
+<body>
+<div class="header">
+<h2>🥛 Milk Purchase Calculator</h2>
+<div id="date"></div>
+<div>GRAND TOTAL</div>
+<div class="total" id="grand">₹0.00</div>
+</div>
+
+<div class="actions">
+<button onclick="showTab('milk')">🥛 Milk</button>
+<button onclick="showTab('curd')">🍶 Curd</button>
+<button onclick="showTab('p200')">📦 200ML</button>
+<button onclick="toggleTheme()">🌙/☀️</button>
+<button onclick="resetAll()">Reset</button>
+<button onclick="copyTotal()">Copy Total</button>
+</div>
+
+<div id="milk" class="section active"></div>
+<div id="curd" class="section"></div>
+<div id="p200" class="section"></div>
+
+<script>
+const products=[
+{name:'Orange Milk',price:53,cat:'milk'},
+{name:'Family Milk',price:53,cat:'milk'},
+{name:'Blue Milk',price:47,cat:'milk'},
+{name:'Green Milk',price:51,cat:'milk'},
+{name:'Heritage Milk',price:58,cat:'milk'},
+{name:'Nandini Curd',price:54,cat:'curd'},
+{name:'Heritage Curd',price:49,cat:'curd'},
+{name:'Heritage Milk 200ml',price:8.5,cat:'p200'},
+{name:'Heritage Curd 200ml',price:8.5,cat:'p200'},
+{name:'Nandini Curd 200ml',price:12.5,cat:'p200'}
+];
+
+function evalExpr(v){
+ if(!v) return 0;
+ try{return Function("return "+v)();}catch(e){return 0;}
+}
+
+function build(){
+ ['milk','curd','p200'].forEach(cat=>{
+  let html='';
+  products.filter(p=>p.cat===cat).forEach((p,i)=>{
+   html+=`<div class="card">
+   <div class="row"><b>${p.name}</b><span>₹${p.price}</span></div>
+   <input data-cat="${cat}" data-name="${p.name}" placeholder="10+12">
+   <div class="row"><span>Total</span><span id="t_${p.name}">₹0.00</span></div>
+   </div>`;
+  });
+  html+=`<div class="card"><b>${cat.toUpperCase()} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
+  document.getElementById(cat).innerHTML=html;
+ });
+ attach();
+}
+
+function attach(){
+ const inputs=[...document.querySelectorAll('input')];
+ inputs.forEach((inp,idx)=>{
+  inp.addEventListener('input',recalc);
+  inp.addEventListener('keydown',e=>{
+   if(e.key==='Enter'){
+    e.preventDefault();
+    if(inputs[idx+1]) inputs[idx+1].focus();
+   }
+  });
+ });
+}
+
+function recalc(){
+ let grand=0,milk=0,curd=0,p200=0;
+ document.querySelectorAll('input').forEach(inp=>{
+   let q=evalExpr(inp.value)||0;
+   let p=products.find(x=>x.name===inp.dataset.name);
+   let tot=q*p.price;
+   document.getElementById('t_'+p.name).innerText='₹'+tot.toFixed(2);
+   grand+=tot;
+   if(p.cat==='milk') milk+=tot;
+   if(p.cat==='curd') curd+=tot;
+   if(p.cat==='p200') p200+=tot;
+ });
+ document.getElementById('grand').innerText='₹'+grand.toFixed(2);
+ document.getElementById('milk_total').innerText='₹'+milk.toFixed(2);
+ document.getElementById('curd_total').innerText='₹'+curd.toFixed(2);
+ document.getElementById('p200_total').innerText='₹'+p200.toFixed(2);
+}
+
+function showTab(id){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
+function toggleTheme(){document.body.classList.toggle('light');}
+function resetAll(){
+ if(confirm('Reset all quantities?')){
+  document.querySelectorAll('input').forEach(i=>i.value='');
+  recalc();
+ }
+}
+function copyTotal(){
+ navigator.clipboard.writeText(document.getElementById('grand').innerText);
+ alert('Grand total copied');
+}
+document.getElementById('date').innerText=new Date().toDateString();
+build();
+</script>
+</body>
+</html>
