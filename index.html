@@ -6,8 +6,8 @@
 <title>Milk Purchase Calculator</title>
 
 
- <style>
- :root{
+<style>
+:root{
     --bg:#0f172a;
     --card:#1e293b;
     --card2:#334155;
@@ -23,6 +23,11 @@ body.light{
     --card2:#f8fafc;
     --text:#0f172a;
     --border:rgba(0,0,0,.08);
+}
+
+/* Added here to handle the background change for light mode sticky bar */
+body.light .actions {
+    background: #f1f5f9;
 }
 
 *{
@@ -76,6 +81,11 @@ body{
     gap:10px;
     flex-wrap:wrap;
     padding:15px;
+    /* Added to make the navigation sticky */
+    position: sticky;
+    top: 119px; 
+    z-index: 99; 
+    background: #0f172a;
 }
 
 .actions button{
@@ -195,6 +205,8 @@ input::placeholder{
     .actions{
         display:grid;
         grid-template-columns:1fr 1fr;
+        /* Inserted here inside your existing mobile styles */
+        top: 105px; 
     }
 
     .actions button{
