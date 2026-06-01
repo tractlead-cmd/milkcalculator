@@ -218,12 +218,14 @@ input::placeholder{
 }
 
 .actions{
-    position: sticky;
-    top: 110px; /* adjust based on header height */
+    position: fixed;
+    top: 95px;   /* below header */
+    left: 0;
+    right: 0;
     z-index: 99;
     background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
+    padding: 15px;
 }
   
 </style>
