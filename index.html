@@ -49,58 +49,62 @@ body{
     border-bottom: 1px solid var(--border);
 }
 
-/* HEADER */
+/* COMPACT SINGLE-ROW HEADER */
 .header{
-    padding:18px;
+    padding: 10px 15px;
     backdrop-filter:blur(15px);
     background:rgba(15,23,42,.9);
-    text-align:center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
 .header h2{
     margin:0;
-    font-size:28px;
+    font-size:18px;
+    white-space: nowrap;
 }
 
 #date{
     opacity:.7;
-    margin-top:5px;
-    font-size:14px;
+    font-size:12px;
+    white-space: nowrap;
 }
 
 .total{
-    font-size:42px;
+    font-size:22px;
     font-weight:800;
     color:var(--accent);
-    margin-top:10px;
-    text-shadow:0 0 20px rgba(34,197,94,.4);
+    text-shadow:0 0 15px rgba(34,197,94,.4);
+    white-space: nowrap;
 }
 
 /* BUTTONS */
 .actions{
     display:flex;
-    gap:10px;
+    gap:8px;
     flex-wrap:wrap;
-    padding:15px;
+    padding: 8px 15px 12px 15px;
 }
 
 .actions button{
     flex:1;
-    min-width:120px;
-    padding:14px;
+    min-width:100px;
+    padding:10px;
     border:none;
-    border-radius:14px;
+    border-radius:10px;
     background:linear-gradient(135deg,#22c55e,#16a34a);
     color:white;
     font-weight:600;
-    font-size:15px;
+    font-size:14px;
     cursor:pointer;
     transition:.25s;
-    box-shadow:0 4px 15px rgba(34,197,94,.25);
+    box-shadow:0 4px 12px rgba(34,197,94,.20);
 }
 
 .actions button:hover{
-    transform:translateY(-3px);
+    transform:translateY(-2px);
 }
 
 /* SECTIONS */
@@ -196,7 +200,7 @@ input::placeholder{
     font-size: 20px;
     cursor: pointer;
     z-index: 1000;
-    display: none; /* Controlled by JavaScript scroll tracking */
+    display: none;
     align-items: center;
     justify-content: center;
     box-shadow: 0 4px 15px rgba(34,197,94, 0.4);
@@ -210,11 +214,15 @@ input::placeholder{
 /* MOBILE */
 @media(max-width:768px){
     .header h2{
-        font-size:24px;
+        font-size:15px;
+    }
+    
+    #date {
+        font-size: 11px;
     }
 
     .total{
-        font-size:36px;
+        font-size:18px;
     }
 
     .actions{
@@ -247,9 +255,8 @@ input::placeholder{
 
 <div class="sticky-navbar">
     <div class="header">
-        <h2>🥛 Milk Purchase Calculator</h2>
+        <h2>🥛 Milk Calc</h2>
         <div id="date"></div>
-        <div>GRAND TOTAL</div>
         <div class="total" id="grand">₹0.00</div>
     </div>
 
@@ -319,7 +326,6 @@ function build(){
 }
 
 function attach(){
- // Fixed to dynamically find all inputs currently visible within the active layout
  const inputs = [...document.querySelectorAll('input:not(.setting-input)')];
  inputs.forEach((inp, idx) => {
   inp.addEventListener('input', recalc);
@@ -375,7 +381,6 @@ function buildSettings(){
 function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
- // Re-evaluate fields order whenever tab changes so enter logic maps cleanly
  attach(); 
 }
 
@@ -418,10 +423,9 @@ function hideProduct(id){
  if(card){
    card.style.display='none';
  }
- attach(); // Recalculate fields focus mapping once a product is hidden
+ attach(); 
 }
 
-// Track page scroll to display or hide the "back to top" button
 window.onscroll = function() {
     const btn = document.getElementById("scrollTopBtn");
     if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
@@ -431,7 +435,6 @@ window.onscroll = function() {
     }
 };
 
-// Smooth scroll to top function
 function scrollToTop() {
     window.scrollTo({
         top: 0,
