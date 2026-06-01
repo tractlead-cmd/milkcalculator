@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Milk Purchase Calculator</title>
 
-
 <style>
 :root{
     --bg:#0f172a;
@@ -25,8 +24,7 @@ body.light{
     --border:rgba(0,0,0,.08);
 }
 
-/* Added here to handle the background change for light mode sticky bar */
-body.light .actions {
+body.light .sticky-navbar {
     background: #f1f5f9;
 }
 
@@ -42,16 +40,20 @@ body{
     min-height:100vh;
 }
 
-/* HEADER */
+/* NEW STICKY WRAPPER */
+.sticky-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #0f172a;
+    border-bottom: 1px solid var(--border);
+}
 
+/* HEADER */
 .header{
-    position:sticky;
-    top:0;
-    z-index:100;
     padding:18px;
     backdrop-filter:blur(15px);
     background:rgba(15,23,42,.9);
-    border-bottom:1px solid var(--border);
     text-align:center;
 }
 
@@ -75,17 +77,11 @@ body{
 }
 
 /* BUTTONS */
-
 .actions{
     display:flex;
     gap:10px;
     flex-wrap:wrap;
     padding:15px;
-    /* Added to make the navigation sticky */
-    position: sticky;
-    top: 119px; 
-    z-index: 99; 
-    background: #0f172a;
 }
 
 .actions button{
@@ -108,7 +104,6 @@ body{
 }
 
 /* SECTIONS */
-
 .section{
     display:none;
     padding:15px;
@@ -119,7 +114,6 @@ body{
 }
 
 /* CARDS */
-
 .card{
     background:rgba(30,41,59,.75);
     backdrop-filter:blur(12px);
@@ -151,7 +145,6 @@ body{
 }
 
 /* INPUTS */
-
 input{
     width:100%;
     margin-top:12px;
@@ -177,7 +170,6 @@ input::placeholder{
 }
 
 /* CATEGORY TOTAL CARD */
-
 .card:last-child{
     background:linear-gradient(
         135deg,
@@ -191,9 +183,7 @@ input::placeholder{
 }
 
 /* MOBILE */
-
 @media(max-width:768px){
-
     .header h2{
         font-size:24px;
     }
@@ -205,8 +195,6 @@ input::placeholder{
     .actions{
         display:grid;
         grid-template-columns:1fr 1fr;
-        /* Inserted here inside your existing mobile styles */
-        top: 105px; 
     }
 
     .actions button{
@@ -228,26 +216,27 @@ input::placeholder{
     background:#0f172a;
     color:white;
 }
-  
 </style>
- 
 </head>
 <body>
-<div class="header">
-<h2>🥛 Milk Purchase Calculator</h2>
-<div id="date"></div>
-<div>GRAND TOTAL</div>
-<div class="total" id="grand">₹0.00</div>
-</div>
 
-<div class="actions">
-<button onclick="showTab('milk')">🥛 Milk</button>
-<button onclick="showTab('curd')">🍶 Curd</button>
-<button onclick="showTab('p200')">📦 200ML</button>
-<button onclick="showTab('settings')">⚙️ Settings</button>
-<button onclick="toggleTheme()">🌙/☀️</button>
-<button onclick="resetAll()">Reset</button>
-<button onclick="copyTotal()">Copy Total</button>
+<div class="sticky-navbar">
+    <div class="header">
+        <h2>🥛 Milk Purchase Calculator</h2>
+        <div id="date"></div>
+        <div>GRAND TOTAL</div>
+        <div class="total" id="grand">₹0.00</div>
+    </div>
+
+    <div class="actions">
+        <button onclick="showTab('milk')">🥛 Milk</button>
+        <button onclick="showTab('curd')">🍶 Curd</button>
+        <button onclick="showTab('p200')">📦 200ML</button>
+        <button onclick="showTab('settings')">⚙️ Settings</button>
+        <button onclick="toggleTheme()">🌙/☀️</button>
+        <button onclick="resetAll()">Reset</button>
+        <button onclick="copyTotal()">Copy Total</button>
+    </div>
 </div>
 
 <div id="milk" class="section active"></div>
@@ -375,7 +364,6 @@ function copyTotal(){
  navigator.clipboard.writeText(document.getElementById('grand').innerText);
  alert('Grand total copied');
 }
-
 
 function savePrices(){
 
