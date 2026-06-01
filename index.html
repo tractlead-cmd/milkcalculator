@@ -266,14 +266,14 @@ function evalExpr(v){
 function build(){
  ['milk','curd','p200'].forEach(cat=>{
   let html='';
-  products.filter(p=>p.cat===cat).forEach((p,i)=>{
-  html+=`<div class="card" id="card_${i}">
+  products.filter(p=>p.cat===cat).forEach((p)=>{
+  html+=`<div class="card" id="card_${p.name.replaceAll(' ','_')}">
   <div class="row">
   <b>${p.name}</b>
   <div>
   <span>₹${p.price}</span>
   <button class="hide-btn"
-  onclick="hideProduct(${i})">
+  onclick="hideProduct('${p.name.replaceAll(' ','_')}')">
   Hide
   </button>
   </div>
@@ -284,8 +284,9 @@ function build(){
   });
   html+=`<div class="card"><b>${cat.toUpperCase()} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
   document.getElementById(cat).innerHTML=html;
-  buildSettings();
  });
+
+ buildSettings();
  attach();
 }
 
@@ -304,7 +305,7 @@ function attach(){
 
 function recalc(){
  let grand=0,milk=0,curd=0,p200=0;
- document.querySelectorAll('input').forEach(inp=>{
+ document.querySelectorAll('input[data-name]').forEach(inp=>{
    let q=evalExpr(inp.value)||0;
    let p=products.find(x=>x.name===inp.dataset.name);
    let tot=q*p.price;
@@ -383,7 +384,7 @@ function savePrices(){
  recalc();
 }
 
-function hideProduct(i){
+function hideProduct(id){
 
  const card =
  document.getElementById(
