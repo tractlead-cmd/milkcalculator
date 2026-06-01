@@ -352,7 +352,10 @@ function showTab(id){
 function toggleTheme(){document.body.classList.toggle('light');}
 function resetAll(){
  if(confirm('Reset all quantities?')){
-  document.querySelectorAll('input').forEach(i=>i.value='');
+  document
+   .querySelectorAll('input[data-name]')
+   .forEach(i=>i.value='');
+
   recalc();
  }
 }
