@@ -202,6 +202,21 @@ input::placeholder{
     }
 }
 
+.hide-btn{
+    background:#ef4444;
+    padding:6px 10px;
+    border:none;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    margin-left:10px;
+}
+
+.setting-input{
+    background:#0f172a;
+    color:white;
+}
+  
 </style>
  
 </head>
@@ -217,6 +232,7 @@ input::placeholder{
 <button onclick="showTab('milk')">🥛 Milk</button>
 <button onclick="showTab('curd')">🍶 Curd</button>
 <button onclick="showTab('p200')">📦 200ML</button>
+<button onclick="showTab('settings')">⚙️ Settings</button>
 <button onclick="toggleTheme()">🌙/☀️</button>
 <button onclick="resetAll()">Reset</button>
 <button onclick="copyTotal()">Copy Total</button>
@@ -225,9 +241,11 @@ input::placeholder{
 <div id="milk" class="section active"></div>
 <div id="curd" class="section"></div>
 <div id="p200" class="section"></div>
+<div id="settings" class="section"></div>
 
 <script>
-const products=[
+let products =
+JSON.parse(localStorage.getItem('products')) || [
 {name:'Orange Milk',price:53,cat:'milk'},
 {name:'Family Milk',price:53,cat:'milk'},
 {name:'Blue Milk',price:47,cat:'milk'},
@@ -249,14 +267,24 @@ function build(){
  ['milk','curd','p200'].forEach(cat=>{
   let html='';
   products.filter(p=>p.cat===cat).forEach((p,i)=>{
-   html+=`<div class="card">
-   <div class="row"><b>${p.name}</b><span>₹${p.price}</span></div>
+  html+=`<div class="card" id="card_${i}">
+  <div class="row">
+  <b>${p.name}</b>
+  <div>
+  <span>₹${p.price}</span>
+  <button class="hide-btn"
+  onclick="hideProduct(${i})">
+  Hide
+  </button>
+  </div>
+  </div>
    <input data-cat="${cat}" data-name="${p.name}" placeholder="10+12">
    <div class="row"><span>Total</span><span id="t_${p.name}">₹0.00</span></div>
    </div>`;
   });
   html+=`<div class="card"><b>${cat.toUpperCase()} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
   document.getElementById(cat).innerHTML=html;
+  buildSettings();
  });
  attach();
 }
@@ -292,6 +320,30 @@ function recalc(){
  document.getElementById('p200_total').innerText='₹'+p200.toFixed(2);
 }
 
+function buildSettings(){
+
+ let html='<div class="card"><h3>Price Settings</h3>';
+
+ products.forEach((p,i)=>{
+   html+=`
+   <div class="row">
+      <span>${p.name}</span>
+      <input
+      class="setting-input"
+      id="price_${i}"
+      value="${p.price}">
+   </div>`;
+ });
+
+ html+=`
+ <button onclick="savePrices()">
+ Save Prices
+ </button>
+ </div>`;
+
+ document.getElementById('settings').innerHTML=html;
+}
+
 function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
@@ -306,6 +358,41 @@ function resetAll(){
 function copyTotal(){
  navigator.clipboard.writeText(document.getElementById('grand').innerText);
  alert('Grand total copied');
+}
+
+
+function savePrices(){
+
+ products.forEach((p,i)=>{
+   p.price =
+   parseFloat(
+   document.getElementById(
+   'price_'+i
+   ).value
+   ) || 0;
+ });
+
+ localStorage.setItem(
+ 'products',
+ JSON.stringify(products)
+ );
+
+ alert('Prices Saved');
+
+ build();
+ recalc();
+}
+
+function hideProduct(i){
+
+ const card =
+ document.getElementById(
+ 'card_'+i
+ );
+
+ if(card){
+   card.style.display='none';
+ }
 }
 document.getElementById('date').innerText=new Date().toDateString();
 build();
