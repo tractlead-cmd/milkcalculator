@@ -40,7 +40,7 @@ body{
     min-height:100vh;
 }
 
-/* NEW STICKY WRAPPER */
+/* STICKY WRAPPER */
 .sticky-navbar {
     position: sticky;
     top: 0;
@@ -182,6 +182,31 @@ input::placeholder{
     font-size:14px;
 }
 
+/* BACK TO TOP BUTTON */
+.scroll-top-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: white;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000;
+    display: none; /* Controlled by JavaScript scroll tracking */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(34,197,94, 0.4);
+    transition: transform 0.2s;
+}
+
+.scroll-top-btn:hover {
+    transform: scale(1.1);
+}
+
 /* MOBILE */
 @media(max-width:768px){
     .header h2{
@@ -244,6 +269,8 @@ input::placeholder{
 <div id="p200" class="section"></div>
 <div id="settings" class="section"></div>
 
+<button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
+
 <script>
 let products =
 JSON.parse(localStorage.getItem('products')) || [
@@ -292,13 +319,16 @@ function build(){
 }
 
 function attach(){
- const inputs=[...document.querySelectorAll('input')];
- inputs.forEach((inp,idx)=>{
-  inp.addEventListener('input',recalc);
-  inp.addEventListener('keydown',e=>{
-   if(e.key==='Enter'){
+ // Fixed to dynamically find all inputs currently visible within the active layout
+ const inputs = [...document.querySelectorAll('input:not(.setting-input)')];
+ inputs.forEach((inp, idx) => {
+  inp.addEventListener('input', recalc);
+  inp.addEventListener('keydown', e => {
+   if(e.key === 'Enter'){
     e.preventDefault();
-    if(inputs[idx+1]) inputs[idx+1].focus();
+    if(inputs[idx + 1]) {
+        inputs[idx + 1].focus();
+    }
    }
   });
  });
@@ -323,9 +353,7 @@ function recalc(){
 }
 
 function buildSettings(){
-
  let html='<div class="card"><h3>Price Settings</h3>';
-
  products.forEach((p,i)=>{
    html+=`
    <div class="row">
@@ -336,37 +364,38 @@ function buildSettings(){
       value="${p.price}">
    </div>`;
  });
-
  html+=`
  <button onclick="savePrices()">
  Save Prices
  </button>
  </div>`;
-
  document.getElementById('settings').innerHTML=html;
 }
 
 function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
+ // Re-evaluate fields order whenever tab changes so enter logic maps cleanly
+ attach(); 
 }
+
 function toggleTheme(){document.body.classList.toggle('light');}
+
 function resetAll(){
  if(confirm('Reset all quantities?')){
   document
    .querySelectorAll('input[data-name]')
    .forEach(i=>i.value='');
-
   recalc();
  }
 }
+
 function copyTotal(){
  navigator.clipboard.writeText(document.getElementById('grand').innerText);
  alert('Grand total copied');
 }
 
 function savePrices(){
-
  products.forEach((p,i)=>{
    p.price =
    parseFloat(
@@ -375,29 +404,41 @@ function savePrices(){
    ).value
    ) || 0;
  });
-
  localStorage.setItem(
  'products',
  JSON.stringify(products)
  );
-
  alert('Prices Saved');
-
  build();
  recalc();
 }
 
 function hideProduct(id){
-
- const card =
- document.getElementById(
- 'card_'+id
- );
-
+ const card = document.getElementById('card_'+id);
  if(card){
    card.style.display='none';
  }
+ attach(); // Recalculate fields focus mapping once a product is hidden
 }
+
+// Track page scroll to display or hide the "back to top" button
+window.onscroll = function() {
+    const btn = document.getElementById("scrollTopBtn");
+    if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+        btn.style.display = "flex";
+    } else {
+        btn.style.display = "none";
+    }
+};
+
+// Smooth scroll to top function
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
 document.getElementById('date').innerText=new Date().toDateString();
 build();
 </script>
