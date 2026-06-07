@@ -261,7 +261,8 @@ input::placeholder{
     </div>
 
     <div class="actions">
-        <button onclick="showTab('milk')">🥛 Milk</button>
+        <button onclick="showTab('milk')">🥛 Milk 1/2 Ltr</button>
+        <button onclick="showTab('milk1l')">🥛 Milk 1 Ltr</button>
         <button onclick="showTab('curd')">🍶 Curd</button>
         <button onclick="showTab('p200')">📦 200ML</button>
         <button onclick="showTab('settings')">⚙️ Settings</button>
@@ -272,6 +273,7 @@ input::placeholder{
 </div>
 
 <div id="milk" class="section active"></div>
+<div id="milk1l" class="section"></div>
 <div id="curd" class="section"></div>
 <div id="p200" class="section"></div>
 <div id="settings" class="section"></div>
@@ -286,6 +288,8 @@ JSON.parse(localStorage.getItem('products')) || [
 {name:'Blue Milk',price:47,cat:'milk'},
 {name:'Green Milk',price:51,cat:'milk'},
 {name:'Heritage Milk',price:58,cat:'milk'},
+{name:'Orange Milk 1L',price:51,cat:'milk1l'},
+{name:'Blue Milk 1L',price:46,cat:'milk1l'},
 {name:'Nandini Curd',price:54,cat:'curd'},
 {name:'Heritage Curd',price:49,cat:'curd'},
 {name:'Heritage Milk 200ml',price:8.5,cat:'p200'},
@@ -299,7 +303,7 @@ function evalExpr(v){
 }
 
 function build(){
- ['milk','curd','p200'].forEach(cat=>{
+ ['milk','milk1l','curd','p200'].forEach(cat=>{
   let html='';
   products.filter(p=>p.cat===cat).forEach((p)=>{
   html+=`<div class="card" id="card_${p.name.replaceAll(' ','_')}">
@@ -314,10 +318,11 @@ function build(){
   </div>
   </div>
    <input data-cat="${cat}" data-name="${p.name}" placeholder="10+12">
-   <div class="row"><span>Total</span><span id="t_${p.name}">₹0.00</span></div>
+   <div class="row"><span>Total</span><span id="t_${p.name.replaceAll(' ','_')}">₹0.00</span></div>
    </div>`;
   });
-  html+=`<div class="card"><b>${cat.toUpperCase()} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
+  let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
+  html+=`<div class="card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
   document.getElementById(cat).innerHTML=html;
  });
 
@@ -341,19 +346,21 @@ function attach(){
 }
 
 function recalc(){
- let grand=0,milk=0,curd=0,p200=0;
+ let grand=0,milk=0,milk1l=0,curd=0,p200=0;
  document.querySelectorAll('input[data-name]').forEach(inp=>{
    let q=evalExpr(inp.value)||0;
    let p=products.find(x=>x.name===inp.dataset.name);
    let tot=q*p.price;
-   document.getElementById('t_'+p.name).innerText='₹'+tot.toFixed(2);
+   document.getElementById('t_'+p.name.replaceAll(' ','_')).innerText='₹'+tot.toFixed(2);
    grand+=tot;
    if(p.cat==='milk') milk+=tot;
+   if(p.cat==='milk1l') milk1l+=tot;
    if(p.cat==='curd') curd+=tot;
    if(p.cat==='p200') p200+=tot;
  });
  document.getElementById('grand').innerText='₹'+grand.toFixed(2);
  document.getElementById('milk_total').innerText='₹'+milk.toFixed(2);
+ document.getElementById('milk1l_total').innerText='₹'+milk1l.toFixed(2);
  document.getElementById('curd_total').innerText='₹'+curd.toFixed(2);
  document.getElementById('p200_total').innerText='₹'+p200.toFixed(2);
 }
