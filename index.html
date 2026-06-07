@@ -249,6 +249,11 @@ input::placeholder{
     background:#0f172a;
     color:white;
 }
+
+.danger-btn {
+    background: #ef4444 !important;
+    margin-top: 15px;
+}
 </style>
 </head>
 <body>
@@ -281,8 +286,8 @@ input::placeholder{
 <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
 
 <script>
-let products =
-JSON.parse(localStorage.getItem('products')) || [
+// Default complete list of items
+const defaultProducts = [
 {name:'Orange Milk',price:53,cat:'milk'},
 {name:'Family Milk',price:53,cat:'milk'},
 {name:'Blue Milk',price:47,cat:'milk'},
@@ -296,6 +301,16 @@ JSON.parse(localStorage.getItem('products')) || [
 {name:'Heritage Curd 200ml',price:8.5,cat:'p200'},
 {name:'Nandini Curd 200ml',price:12.5,cat:'p200'}
 ];
+
+let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
+
+// Force inject missing 1L items into saved memory if it's an old save file
+defaultProducts.forEach(dp => {
+    if(!products.find(p => p.name === dp.name)) {
+        products.push(dp);
+    }
+});
+localStorage.setItem('products', JSON.stringify(products));
 
 function evalExpr(v){
  if(!v) return 0;
@@ -350,13 +365,15 @@ function recalc(){
  document.querySelectorAll('input[data-name]').forEach(inp=>{
    let q=evalExpr(inp.value)||0;
    let p=products.find(x=>x.name===inp.dataset.name);
-   let tot=q*p.price;
-   document.getElementById('t_'+p.name.replaceAll(' ','_')).innerText='₹'+tot.toFixed(2);
-   grand+=tot;
-   if(p.cat==='milk') milk+=tot;
-   if(p.cat==='milk1l') milk1l+=tot;
-   if(p.cat==='curd') curd+=tot;
-   if(p.cat==='p200') p200+=tot;
+   if(p){
+     let tot=q*p.price;
+     document.getElementById('t_'+p.name.replaceAll(' ','_')).innerText='₹'+tot.toFixed(2);
+     grand+=tot;
+     if(p.cat==='milk') milk+=tot;
+     if(p.cat==='milk1l') milk1l+=tot;
+     if(p.cat==='curd') curd+=tot;
+     if(p.cat==='p200') p200+=tot;
+   }
  });
  document.getElementById('grand').innerText='₹'+grand.toFixed(2);
  document.getElementById('milk_total').innerText='₹'+milk.toFixed(2);
@@ -378,9 +395,8 @@ function buildSettings(){
    </div>`;
  });
  html+=`
- <button onclick="savePrices()">
- Save Prices
- </button>
+ <button onclick="savePrices()">Save Prices</button>
+ <button class="danger-btn" onclick="clearCache()">Reset App Cache</button>
  </div>`;
  document.getElementById('settings').innerHTML=html;
 }
@@ -399,6 +415,13 @@ function resetAll(){
    .querySelectorAll('input[data-name]')
    .forEach(i=>i.value='');
   recalc();
+ }
+}
+
+function clearCache(){
+ if(confirm('This will restore all default products and configurations. Proceed?')){
+  localStorage.removeItem('products');
+  location.reload();
  }
 }
 
