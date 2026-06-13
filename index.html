@@ -107,14 +107,16 @@ body{
     transform:translateY(-2px);
 }
 
-/* SECTIONS */
+/* SECTIONS - Configured for 3 columns per row */
 .section{
     display:none;
     padding:15px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
 }
 
 .section.active{
-    display:block;
+    display:grid;
 }
 
 /* CARDS */
@@ -124,9 +126,11 @@ body{
     border:1px solid var(--border);
     border-radius:18px;
     padding:18px;
-    margin-bottom:15px;
     box-shadow:0 8px 25px rgba(0,0,0,.25);
     transition:.25s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .card:hover{
@@ -173,13 +177,14 @@ input::placeholder{
     color:#94a3b8;
 }
 
-/* CATEGORY TOTAL CARD */
-.card:last-child{
+/* CATEGORY TOTAL CARD - Make it span across all 3 columns */
+.category-total-card {
+    grid-column: 1 / -1;
     background:linear-gradient(
         135deg,
         rgba(34,197,94,.2),
         rgba(22,163,74,.2)
-    );
+    ) !important;
 }
 
 .small{
@@ -211,6 +216,13 @@ input::placeholder{
     transform: scale(1.1);
 }
 
+/* TABLET AND RESPONSIVE SCREEN ADJUSTMENTS */
+@media(max-width:1024px){
+    .section.active{
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 /* MOBILE */
 @media(max-width:768px){
     .header h2{
@@ -232,6 +244,10 @@ input::placeholder{
 
     .actions button{
         min-width:unset;
+    }
+
+    .section.active{
+        grid-template-columns: 1fr;
     }
 }
 
@@ -337,7 +353,7 @@ function build(){
    </div>`;
   });
   let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
-  html+=`<div class="card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
+  html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
   document.getElementById(cat).innerHTML=html;
  });
 
