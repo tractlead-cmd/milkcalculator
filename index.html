@@ -107,7 +107,7 @@ body{
     transform:translateY(-2px);
 }
 
-/* SECTIONS - Configured for 3 columns per row */
+/* SECTIONS */
 .section{
     display:none;
     padding:15px;
@@ -177,7 +177,7 @@ input::placeholder{
     color:#94a3b8;
 }
 
-/* CATEGORY TOTAL CARD - Make it span across all 3 columns */
+/* CATEGORY TOTAL CARD */
 .category-total-card {
     grid-column: 1 / -1;
     background:linear-gradient(
@@ -216,7 +216,7 @@ input::placeholder{
     transform: scale(1.1);
 }
 
-/* TABLET AND RESPONSIVE SCREEN ADJUSTMENTS */
+/* RESPONSIVE LAYOUTS */
 @media(max-width:1024px){
     .section.active{
         grid-template-columns: repeat(2, 1fr);
@@ -320,7 +320,7 @@ const defaultProducts = [
 
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
 
-// Force inject missing 1L items into saved memory if it's an old save file
+// Force inject missing items into saved memory if it's an old save file
 defaultProducts.forEach(dp => {
     if(!products.find(p => p.name === dp.name)) {
         products.push(dp);
@@ -334,9 +334,13 @@ function evalExpr(v){
 }
 
 function build(){
+ // Retrieve previously stored input values
+ let savedQuantities = JSON.parse(localStorage.getItem('milk_calc_quantities')) || {};
+
  ['milk','milk1l','curd','p200'].forEach(cat=>{
   let html='';
   products.filter(p=>p.cat===cat).forEach((p)=>{
+  let savedVal = savedQuantities[p.name] || '';
   html+=`<div class="card" id="card_${p.name.replaceAll(' ','_')}">
   <div class="row">
   <b>${p.name}</b>
@@ -348,7 +352,7 @@ function build(){
   </button>
   </div>
   </div>
-   <input data-cat="${cat}" data-name="${p.name}" placeholder="10+12">
+   <input data-cat="${cat}" data-name="${p.name}" placeholder="10+12" value="${savedVal}">
    <div class="row"><span>Total</span><span id="t_${p.name.replaceAll(' ','_')}">₹0.00</span></div>
    </div>`;
   });
@@ -359,12 +363,13 @@ function build(){
 
  buildSettings();
  attach();
+ recalc(false); // Run initial calculation silently without saving redundancy
 }
 
 function attach(){
  const inputs = [...document.querySelectorAll('input:not(.setting-input)')];
  inputs.forEach((inp, idx) => {
-  inp.addEventListener('input', recalc);
+  inp.addEventListener('input', () => recalc(true));
   inp.addEventListener('keydown', e => {
    if(e.key === 'Enter'){
     e.preventDefault();
@@ -376,11 +381,19 @@ function attach(){
  });
 }
 
-function recalc(){
+function recalc(shouldSave = true){
  let grand=0,milk=0,milk1l=0,curd=0,p200=0;
+ let quantitiesToSave = {};
+
  document.querySelectorAll('input[data-name]').forEach(inp=>{
-   let q=evalExpr(inp.value)||0;
-   let p=products.find(x=>x.name===inp.dataset.name);
+   let rawValue = inp.value;
+   let name = inp.dataset.name;
+   if(rawValue) {
+     quantitiesToSave[name] = rawValue;
+   }
+
+   let q=evalExpr(rawValue)||0;
+   let p=products.find(x=>x.name===name);
    if(p){
      let tot=q*p.price;
      document.getElementById('t_'+p.name.replaceAll(' ','_')).innerText='₹'+tot.toFixed(2);
@@ -391,11 +404,17 @@ function recalc(){
      if(p.cat==='p200') p200+=tot;
    }
  });
+ 
  document.getElementById('grand').innerText='₹'+grand.toFixed(2);
  document.getElementById('milk_total').innerText='₹'+milk.toFixed(2);
  document.getElementById('milk1l_total').innerText='₹'+milk1l.toFixed(2);
  document.getElementById('curd_total').innerText='₹'+curd.toFixed(2);
  document.getElementById('p200_total').innerText='₹'+p200.toFixed(2);
+
+ // Store values dynamically as the user types
+ if(shouldSave) {
+    localStorage.setItem('milk_calc_quantities', JSON.stringify(quantitiesToSave));
+ }
 }
 
 function buildSettings(){
@@ -430,13 +449,15 @@ function resetAll(){
   document
    .querySelectorAll('input[data-name]')
    .forEach(i=>i.value='');
-  recalc();
+  localStorage.removeItem('milk_calc_quantities'); // Clear saved state data
+  recalc(false);
  }
 }
 
 function clearCache(){
  if(confirm('This will restore all default products and configurations. Proceed?')){
   localStorage.removeItem('products');
+  localStorage.removeItem('milk_calc_quantities');
   location.reload();
  }
 }
@@ -461,7 +482,6 @@ function savePrices(){
  );
  alert('Prices Saved');
  build();
- recalc();
 }
 
 function hideProduct(id){
