@@ -371,6 +371,23 @@ function attach(){
  inputs.forEach((inp, idx) => {
   inp.addEventListener('input', () => recalc(true));
   inp.addEventListener('keydown', e => {
+   // Catch Spacebar and convert it to " + "
+   if(e.key === ' ' || e.code === 'Space'){
+    e.preventDefault();
+    
+    const start = inp.selectionStart;
+    const end = inp.selectionEnd;
+    const val = inp.value;
+    
+    // Inserts " + " directly at cursor position seamlessly
+    inp.value = val.substring(0, start) + " + " + val.substring(end);
+    
+    // Moves cursor precisely right after the newly inserted tracking pattern
+    inp.selectionStart = inp.selectionEnd = start + 3;
+    
+    recalc(true);
+   }
+   
    if(e.key === 'Enter'){
     e.preventDefault();
     if(inputs[idx + 1]) {
