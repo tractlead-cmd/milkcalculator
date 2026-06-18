@@ -109,7 +109,7 @@ body{
     transform:translateY(-2px);
 }
 
-/* SECTIONS - SET TO 6 COLUMNS ON ULTRA-WIDE */
+/* SECTIONS - 6 COLUMNS ON ULTRA-WIDE */
 .section{
     display:none;
     padding:15px;
@@ -160,43 +160,52 @@ body{
     font-weight: normal;
 }
 
-/* CHART CONTAINER GRAPH WRAPPER */
-.chart-container {
+/* NEW THREE-SLIDE ROW DASHBOARD DESIGN */
+.dashboard-row {
     grid-column: 1 / -1;
     background: rgba(30,41,59,.4);
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 20px;
     margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* Exactly 3 Equal Column Slides */
+    gap: 20px;
+    align-items: start;
+}
+
+.dashboard-slide {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
 }
 
-.chart-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 360px;
-    height: 360px;
+.dashboard-slide h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
 }
 
-/* LITER BREAKDOWN TEXT LIST */
+/* LEFT SIDE PANEL: BREAKDOWN LIST */
 .liter-list-summary {
     width: 100%;
-    max-width: 400px;
-    margin: 0 auto 15px auto;
+    margin: 0;
     padding: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .liter-list-item {
     display: flex;
     justify-content: space-between;
-    padding: 6px 12px;
+    padding: 10px 14px;
     background: rgba(255, 255, 255, 0.04);
     border-radius: 8px;
     font-size: 14px;
@@ -204,6 +213,39 @@ body{
 
 body.light .liter-list-item {
     background: rgba(0, 0, 0, 0.04);
+}
+
+/* CENTER PANEL: PIE CHART CONTAINER */
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    margin: auto;
+}
+
+/* RIGHT SIDE PANEL: CUSTOM LEGEND CONTAINER */
+.custom-legend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    padding: 4px 0;
+}
+
+.legend-color-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
 }
 
 /* INPUTS */
@@ -239,10 +281,6 @@ input::placeholder{
         rgba(34,197,94,.2),
         rgba(22,163,74,.2)
     ) !important;
-}
-
-.small{
-    font-size:14px;
 }
 
 /* BACK TO TOP BUTTON */
@@ -287,6 +325,17 @@ input::placeholder{
     .section.active{
         grid-template-columns: repeat(3, 1fr);
     }
+    .dashboard-row {
+        grid-template-columns: 1fr 1fr; /* Step down to 2 columns if screen tightens */
+    }
+    .dashboard-slide.legend-slide {
+        grid-column: 1 / -1;
+    }
+    .custom-legend-list {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
 }
 
 @media(max-width:1024px){
@@ -295,7 +344,7 @@ input::placeholder{
     }
 }
 
-/* MOBILE */
+/* MOBILE Layout Conversion */
 @media(max-width:768px){
     .header h2{
         font-size:15px;
@@ -322,9 +371,13 @@ input::placeholder{
         grid-template-columns: 1fr;
     }
     
-    .chart-wrapper {
-        max-width: 280px;
-        height: 280px;
+    .dashboard-row {
+        grid-template-columns: 1fr; /* Entire stack steps down smoothly */
+        gap: 25px;
+    }
+    
+    .custom-legend-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -398,7 +451,13 @@ const defaultProducts = [
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
 let milkPieChart = null; 
 
-// Sync properties if loaded from older local storage states
+// Base color mapping palette built into application matching dashboard aesthetic cleanly
+const sliceColors = [
+    '#22c55e', '#3b82f6', '#eab308', '#a855f7', 
+    '#ec4899', '#f97316', '#06b6d4', '#14b8a6',
+    '#6366f1', '#f43f5e', '#10b981', '#84cc16'
+];
+
 products.forEach(p => {
     let match = defaultProducts.find(dp => dp.name === p.name);
     if(match) p.vol = match.vol;
@@ -447,11 +506,22 @@ function build(){
   let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
   html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span> <span id="${cat}_vtotal" style="font-weight:normal; font-size:14px; margin-left:10px;">(0.00 L)</span></b></div>`;
   
-  // Clean chart container wrapper featuring a newly added dynamic text breakdown list node container
-  html+=`<div class="chart-container">
-            <h3>📊 Volume Breakdown</h3>
-            <ul class="liter-list-summary" id="list_${cat}"></ul>
-            <div class="chart-wrapper"><canvas id="chart_${cat}"></canvas></div>
+  // THREE DISTINCT CLASSIFIED SYSTEM GRID ROW SLIDES FOR LAPTOPS/DESKTOPS
+  html+=`<div class="dashboard-row">
+            <div class="dashboard-slide">
+                <h3>📋 Vol Breakdown</h3>
+                <ul class="liter-list-summary" id="list_${cat}"></ul>
+            </div>
+            
+            <div class="dashboard-slide">
+                <h3>📊 Visual Distribution</h3>
+                <div class="chart-wrapper"><canvas id="chart_${cat}"></canvas></div>
+            </div>
+            
+            <div class="dashboard-slide legend-slide">
+                <h3>🏷️ Product Index</h3>
+                <ul class="custom-legend-list" id="legend_${cat}"></ul>
+            </div>
          </div>`;
   
   document.getElementById(cat).innerHTML=html;
@@ -492,12 +562,9 @@ function recalc(shouldSave = true){
  let catVols = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
  let quantitiesToSave = {};
  
- // Arrays tracking global products with active volumes across tabs
- let globalChartLabels = [];
- let globalChartData = [];
- 
- // Dictionary structure tracking item breakdowns by category cleanly
+ // Dynamic trackers used across specific scopes for plotting variables
  let activeBreakdowns = { milk: '', milk1l: '', curd: '', p200: '' };
+ let categorySlices = { milk: [], milk1l: [], curd: [], p200: [] };
 
  document.querySelectorAll('input[data-name]').forEach(inp=>{
    let rawValue = inp.value;
@@ -524,10 +591,8 @@ function recalc(shouldSave = true){
      }
      
      if (itemVol > 0) {
-         globalChartLabels.push(p.name);
-         globalChartData.push(parseFloat(itemVol.toFixed(2)));
-         
-         // Generate text list elements smoothly for the itemized display tracking volume values
+         // Package distinct item values into structured format
+         categorySlices[p.cat].push({ name: p.name, vol: parseFloat(itemVol.toFixed(2)) });
          activeBreakdowns[p.cat] += `<li class="liter-list-item"><b>${p.name}</b> <span>${itemVol.toFixed(2)} L</span></li>`;
      }
    }
@@ -535,14 +600,34 @@ function recalc(shouldSave = true){
  
  document.getElementById('grand').innerText='₹' + grand.toFixed(2) + ' | ' + grandVol.toFixed(2) + ' L';
  
+ const activeSection = document.querySelector('.section.active');
+ const currentCatId = activeSection ? activeSection.id : 'milk';
+
  for(let cat in catTotals){
     document.getElementById(cat+'_total').innerText='₹'+catTotals[cat].toFixed(2);
     document.getElementById(cat+'_vtotal').innerText='('+catVols[cat].toFixed(2)+' L)';
     
-    // Inject generated list or a clean placeholder if no volume entries exist in that tab
     let targetList = document.getElementById('list_'+cat);
     if(targetList) {
-        targetList.innerHTML = activeBreakdowns[cat] || '<li class="liter-list-item" style="opacity:0.5; justify-content:center;">No active quantities configured</li>';
+        targetList.innerHTML = activeBreakdowns[cat] || '<li class="liter-list-item" style="opacity:0.5; justify-content:center;">No quantities configured</li>';
+    }
+    
+    // Build Right end custom description panel with colors matched systematically
+    let targetLegend = document.getElementById('legend_'+cat);
+    if(targetLegend) {
+        let legendHtml = '';
+        if(categorySlices[cat].length > 0) {
+            categorySlices[cat].forEach((slice, index) => {
+                let color = sliceColors[index % sliceColors.length];
+                legendHtml += `<li class="legend-item">
+                    <div class="legend-color-box" style="background:${color};"></div>
+                    <span><b>${slice.name}</b></span>
+                </li>`;
+            });
+        } else {
+            legendHtml = '<li class="legend-item" style="opacity:0.5;">No active products</li>';
+        }
+        targetLegend.innerHTML = legendHtml;
     }
  }
 
@@ -550,29 +635,24 @@ function recalc(shouldSave = true){
     localStorage.setItem('milk_calc_quantities', JSON.stringify(quantitiesToSave));
  }
  
- updateChart(globalChartLabels, globalChartData);
+ // Compile unique configurations specifically localized to whatever view context is open right now
+ if(currentCatId !== 'settings') {
+     let activeLabels = categorySlices[currentCatId].map(s => s.name);
+     let activeData = categorySlices[currentCatId].map(s => s.vol);
+     updateChart(activeLabels, activeData, currentCatId);
+ }
 }
 
-function updateChart(labels, data) {
-    const activeSection = document.querySelector('.section.active');
-    if (!activeSection || activeSection.id === 'settings') return;
-    
-    const canvasId = 'chart_' + activeSection.id;
+function updateChart(labels, data, catId) {
+    const canvasId = 'chart_' + catId;
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
 
     const isLight = document.body.classList.contains('light');
-    const labelColor = isLight ? '#0f172a' : '#f8fafc';
 
     if (milkPieChart) {
         milkPieChart.destroy();
     }
-
-    const sliceColors = [
-        '#22c55e', '#3b82f6', '#eab308', '#a855f7', 
-        '#ec4899', '#f97316', '#06b6d4', '#14b8a6',
-        '#6366f1', '#f43f5e', '#10b981', '#84cc16'
-    ];
 
     if (labels.length === 0) {
         labels = ['No Entries'];
@@ -595,11 +675,7 @@ function updateChart(labels, data) {
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: labelColor,
-                        font: { family: 'Segoe UI', size: 12 }
-                    }
+                    display: false // Turned native legend off to use our custom structural index on the right side
                 },
                 tooltip: {
                     callbacks: {
