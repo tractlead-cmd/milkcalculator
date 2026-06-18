@@ -107,7 +107,7 @@ body{
     transform:translateY(-2px);
 }
 
-/* SECTIONS - MODIFIED FROM 3 TO 6 COLUMNS FOR LARGE DESKTOPS */
+/* SECTIONS - SET TO 6 COLUMNS NOW */
 .section{
     display:none;
     padding:15px;
@@ -216,7 +216,13 @@ input::placeholder{
     transform: scale(1.1);
 }
 
-/* RESPONSIVE LAYOUTS */
+/* RESPONSIVE BREAKPOINTS MODIFIED FOR 6 COLUMNS */
+@media(max-width:1600px){
+    .section.active{
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
 @media(max-width:1400px){
     .section.active{
         grid-template-columns: repeat(4, 1fr);
