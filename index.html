@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Milk Purchase Calculator</title>
 
+<!-- Added Chart.js CDN Library dependency safely via header -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 :root{
     --bg:#0f172a;
@@ -158,6 +161,27 @@ body{
     font-weight: normal;
 }
 
+/* CHART CONTAINER GRAPH WRAPPER */
+.chart-container {
+    grid-column: 1 / -1;
+    background: rgba(30,41,59,.4);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 20px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    height: 360px;
+}
+
 /* INPUTS */
 input{
     width:100%;
@@ -231,13 +255,13 @@ input::placeholder{
 
 @media(max-width:1400px){
     .section.active{
-        grid-template-columns: repeat(5, 1fr); /* Updated from 4 to 5 for standard laptop layouts */
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 
 @media(max-width:1150px){
     .section.active{
-        grid-template-columns: repeat(3, 1fr); /* Balanced middle ground layout step */
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
@@ -272,6 +296,11 @@ input::placeholder{
 
     .section.active{
         grid-template-columns: 1fr;
+    }
+    
+    .chart-wrapper {
+        max-width: 280px;
+        height: 280px;
     }
 }
 
@@ -343,6 +372,7 @@ const defaultProducts = [
 ];
 
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
+let milkPieChart = null; // Chart reference container variable
 
 // Sync properties if loaded from older local storage states
 products.forEach(p => {
@@ -392,6 +422,10 @@ function build(){
   });
   let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
   html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span> <span id="${cat}_vtotal" style="font-weight:normal; font-size:14px; margin-left:10px;">(0.00 L)</span></b></div>`;
+  
+  // Inject clean chart wrapper layout element container at the base of data nodes
+  html+=`<div class="chart-container"><h3>📊 Liter Consumption Breakdown</h3><div class="chart-wrapper"><canvas id="chart_${cat}"></canvas></div></div>`;
+  
   document.getElementById(cat).innerHTML=html;
  });
 
@@ -429,6 +463,10 @@ function recalc(shouldSave = true){
  let catTotals = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
  let catVols = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
  let quantitiesToSave = {};
+ 
+ // Data arrays tracking live product chart structures
+ let chartLabels = [];
+ let chartData = [];
 
  document.querySelectorAll('input[data-name]').forEach(inp=>{
    let rawValue = inp.value;
@@ -453,6 +491,12 @@ function recalc(shouldSave = true){
         catTotals[p.cat] += tot;
         catVols[p.cat] += itemVol;
      }
+     
+     // Only push items onto diagram metrics structure if volume is valid
+     if (itemVol > 0) {
+         chartLabels.push(p.name);
+         chartData.push(parseFloat(itemVol.toFixed(2)));
+     }
    }
  });
  
@@ -466,6 +510,72 @@ function recalc(shouldSave = true){
  if(shouldSave) {
     localStorage.setItem('milk_calc_quantities', JSON.stringify(quantitiesToSave));
  }
+ 
+ // Trigger dynamic initialization or live refresh of layout chart instance
+ updateChart(chartLabels, chartData);
+}
+
+function updateChart(labels, data) {
+    // Detect active visible content section node
+    const activeSection = document.querySelector('.section.active');
+    if (!activeSection || activeSection.id === 'settings') return;
+    
+    const canvasId = 'chart_' + activeSection.id;
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    // Check configuration variables mapping body text values for dark/light label themes
+    const isLight = document.body.classList.contains('light');
+    const labelColor = isLight ? '#0f172a' : '#f8fafc';
+
+    if (milkPieChart) {
+        milkPieChart.destroy();
+    }
+
+    // Colors customized to gracefully pair with the application's clean aesthetic theme
+    const sliceColors = [
+        '#22c55e', '#3b82f6', '#eab308', '#a855f7', 
+        '#ec4899', '#f97316', '#06b6d4', '#14b8a6',
+        '#6366f1', '#f43f5e', '#10b981', '#84cc16'
+    ];
+
+    if (labels.length === 0) {
+        labels = ['No Entries'];
+        data = [0];
+    }
+
+    milkPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: sliceColors.slice(0, labels.length),
+                borderWidth: 1,
+                borderColor: isLight ? '#ffffff' : '#1e293b'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: labelColor,
+                        font: { family: 'Segoe UI', size: 12 }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ` ${context.label}: ${context.raw.toFixed(2)} L`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 function buildSettings(){
@@ -490,9 +600,13 @@ function buildSettings(){
 function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
+ recalc(false); // Force computation to update chart into correct grid canvas placement context
 }
 
-function toggleTheme(){document.body.classList.toggle('light');}
+function toggleTheme(){
+    document.body.classList.toggle('light');
+    recalc(false); // Force refresh context mapping colors
+}
 
 function resetAll(){
  if(confirm('Reset all quantities?')){
