@@ -107,7 +107,7 @@ body{
     transform:translateY(-2px);
 }
 
-/* SECTIONS - SET TO 6 COLUMNS NOW */
+/* SECTIONS - SET TO 6 COLUMNS */
 .section{
     display:none;
     padding:15px;
@@ -150,6 +150,12 @@ body{
 
 .row span{
     font-size:16px;
+}
+
+.liters-label {
+    font-size: 13px;
+    opacity: 0.8;
+    font-weight: normal;
 }
 
 /* INPUTS */
@@ -290,7 +296,7 @@ input::placeholder{
     <div class="header">
         <h2>🥛 Milk Calc</h2>
         <div id="date"></div>
-        <div class="total" id="grand">₹0.00</div>
+        <div class="total" id="grand">₹0.00 | 0.00 L</div>
     </div>
 
     <div class="actions">
@@ -316,23 +322,28 @@ input::placeholder{
 <script>
 // Default complete list of items
 const defaultProducts = [
-{name:'Orange Milk',price:53,cat:'milk'},
-{name:'Family Milk',price:53,cat:'milk'},
-{name:'Blue Milk',price:47,cat:'milk'},
-{name:'Green Milk',price:51,cat:'milk'},
-{name:'Heritage Milk',price:58,cat:'milk'},
-{name:'Orange Milk 1L',price:51,cat:'milk1l'},
-{name:'Blue Milk 1L',price:46,cat:'milk1l'},
-{name:'Nandini Curd',price:54,cat:'curd'},
-{name:'Heritage Curd',price:49,cat:'curd'},
-{name:'Heritage Milk 200ml',price:8.5,cat:'p200'},
-{name:'Heritage Curd 200ml',price:8.5,cat:'p200'},
-{name:'Nandini Curd 200ml',price:12.5,cat:'p200'}
+{name:'Orange Milk',price:53,cat:'milk',vol:0.5},
+{name:'Family Milk',price:53,cat:'milk',vol:0.5},
+{name:'Blue Milk',price:47,cat:'milk',vol:0.5},
+{name:'Green Milk',price:51,cat:'milk',vol:0.5},
+{name:'Heritage Milk',price:58,cat:'milk',vol:0.5},
+{name:'Orange Milk 1L',price:51,cat:'milk1l',vol:1.0},
+{name:'Blue Milk 1L',price:46,cat:'milk1l',vol:1.0},
+{name:'Nandini Curd',price:54,cat:'curd',vol:0.5},
+{name:'Heritage Curd',price:49,cat:'curd',vol:0.5},
+{name:'Heritage Milk 200ml',price:8.5,cat:'p200',vol:0.2},
+{name:'Heritage Curd 200ml',price:8.5,cat:'p200',vol:0.2},
+{name:'Nandini Curd 200ml',price:12.5,cat:'p200',vol:0.2}
 ];
 
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
 
-// Force inject missing items into saved memory if it's an old save file
+// Sync properties if loaded from older local storage states
+products.forEach(p => {
+    let match = defaultProducts.find(dp => dp.name === p.name);
+    if(match) p.vol = match.vol;
+});
+
 defaultProducts.forEach(dp => {
     if(!products.find(p => p.name === dp.name)) {
         products.push(dp);
@@ -346,7 +357,6 @@ function evalExpr(v){
 }
 
 function build(){
- // Retrieve previously stored input values
  let savedQuantities = JSON.parse(localStorage.getItem('milk_calc_quantities')) || {};
 
  ['milk','milk1l','curd','p200'].forEach(cat=>{
@@ -365,17 +375,23 @@ function build(){
   </div>
   </div>
    <input data-cat="${cat}" data-name="${p.name}" placeholder="10+12" value="${savedVal}">
-   <div class="row"><span>Total</span><span id="t_${p.name.replaceAll(' ','_')}">₹0.00</span></div>
+   <div class="row">
+     <span>Total</span>
+     <span style="text-align:right;">
+        <span id="t_${p.name.replaceAll(' ','_')}">₹0.00</span><br>
+        <small class="liters-label" id="v_${p.name.replaceAll(' ','_')}">0.00 L</small>
+     </span>
+   </div>
    </div>`;
   });
   let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
-  html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span></b></div>`;
+  html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span> <span id="${cat}_vtotal" style="font-weight:normal; font-size:14px; margin-left:10px;">(0.00 L)</span></b></div>`;
   document.getElementById(cat).innerHTML=html;
  });
 
  buildSettings();
  attach();
- recalc(false); // Run initial calculation silently without saving redundancy
+ recalc(false);
 }
 
 function attach(){
@@ -383,23 +399,15 @@ function attach(){
  inputs.forEach((inp, idx) => {
   inp.addEventListener('input', () => recalc(true));
   inp.addEventListener('keydown', e => {
-   // Catch Spacebar and convert it to " + "
    if(e.key === ' ' || e.code === 'Space'){
     e.preventDefault();
-    
     const start = inp.selectionStart;
     const end = inp.selectionEnd;
     const val = inp.value;
-    
-    // Inserts " + " directly at cursor position seamlessly
     inp.value = val.substring(0, start) + " + " + val.substring(end);
-    
-    // Moves cursor precisely right after the newly inserted tracking pattern
     inp.selectionStart = inp.selectionEnd = start + 3;
-    
     recalc(true);
    }
-   
    if(e.key === 'Enter'){
     e.preventDefault();
     if(inputs[idx + 1]) {
@@ -411,7 +419,9 @@ function attach(){
 }
 
 function recalc(shouldSave = true){
- let grand=0,milk=0,milk1l=0,curd=0,p200=0;
+ let grand=0, grandVol=0;
+ let catTotals = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
+ let catVols = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
  let quantitiesToSave = {};
 
  document.querySelectorAll('input[data-name]').forEach(inp=>{
@@ -425,22 +435,28 @@ function recalc(shouldSave = true){
    let p=products.find(x=>x.name===name);
    if(p){
      let tot=q*p.price;
+     let itemVol = q * (p.vol || 0);
+     
      document.getElementById('t_'+p.name.replaceAll(' ','_')).innerText='₹'+tot.toFixed(2);
+     document.getElementById('v_'+p.name.replaceAll(' ','_')).innerText=itemVol.toFixed(2) + ' L';
+     
      grand+=tot;
-     if(p.cat==='milk') milk+=tot;
-     if(p.cat==='milk1l') milk1l+=tot;
-     if(p.cat==='curd') curd+=tot;
-     if(p.cat==='p200') p200+=tot;
+     grandVol+=itemVol;
+     
+     if(catTotals[p.cat] !== undefined){
+        catTotals[p.cat] += tot;
+        catVols[p.cat] += itemVol;
+     }
    }
  });
  
- document.getElementById('grand').innerText='₹'+grand.toFixed(2);
- document.getElementById('milk_total').innerText='₹'+milk.toFixed(2);
- document.getElementById('milk1l_total').innerText='₹'+milk1l.toFixed(2);
- document.getElementById('curd_total').innerText='₹'+curd.toFixed(2);
- document.getElementById('p200_total').innerText='₹'+p200.toFixed(2);
+ document.getElementById('grand').innerText='₹' + grand.toFixed(2) + ' | ' + grandVol.toFixed(2) + ' L';
+ 
+ for(let cat in catTotals){
+    document.getElementById(cat+'_total').innerText='₹'+catTotals[cat].toFixed(2);
+    document.getElementById(cat+'_vtotal').innerText='('+catVols[cat].toFixed(2)+' L)';
+ }
 
- // Store values dynamically as the user types
  if(shouldSave) {
     localStorage.setItem('milk_calc_quantities', JSON.stringify(quantitiesToSave));
  }
@@ -477,7 +493,7 @@ function resetAll(){
   document
    .querySelectorAll('input[data-name]')
    .forEach(i=>i.value='');
-  localStorage.removeItem('milk_calc_quantities'); // Clear saved state data
+  localStorage.removeItem('milk_calc_quantities');
   recalc(false);
  }
 }
@@ -497,17 +513,9 @@ function copyTotal(){
 
 function savePrices(){
  products.forEach((p,i)=>{
-   p.price =
-   parseFloat(
-   document.getElementById(
-   'price_'+i
-   ).value
-   ) || 0;
+   p.price = parseFloat(document.getElementById('price_'+i).value) || 0;
  });
- localStorage.setItem(
- 'products',
- JSON.stringify(products)
- );
+ localStorage.setItem('products', JSON.stringify(products));
  alert('Prices Saved');
  build();
 }
