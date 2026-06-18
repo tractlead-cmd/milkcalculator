@@ -456,7 +456,7 @@ function buildSettings(){
 function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
- attach(); 
+ // FIXED: Removed duplicate attach() call from here
 }
 
 function toggleTheme(){document.body.classList.toggle('light');}
@@ -506,7 +506,7 @@ function hideProduct(id){
  if(card){
    card.style.display='none';
  }
- attach(); 
+ // FIXED: Removed duplicate attach() call from here
 }
 
 window.onscroll = function() {
