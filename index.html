@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Milk Purchase Calculator</title>
 
-<!-- Added Chart.js CDN Library dependency safely via header -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -182,6 +181,31 @@ body{
     height: 360px;
 }
 
+/* LITER BREAKDOWN TEXT LIST */
+.liter-list-summary {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 15px auto;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.liter-list-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+body.light .liter-list-item {
+    background: rgba(0, 0, 0, 0.04);
+}
+
 /* INPUTS */
 input{
     width:100%;
@@ -246,7 +270,7 @@ input::placeholder{
     transform: scale(1.1);
 }
 
-/* RESPONSIVE BREAKPOINTS - MODIFIED TO MAINTAIN 5 COLUMNS ON LAPTOPS */
+/* RESPONSIVE BREAKPOINTS */
 @media(max-width:1600px){
     .section.active{
         grid-template-columns: repeat(5, 1fr);
@@ -372,7 +396,7 @@ const defaultProducts = [
 ];
 
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
-let milkPieChart = null; // Chart reference container variable
+let milkPieChart = null; 
 
 // Sync properties if loaded from older local storage states
 products.forEach(p => {
@@ -423,8 +447,12 @@ function build(){
   let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
   html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span> <span id="${cat}_vtotal" style="font-weight:normal; font-size:14px; margin-left:10px;">(0.00 L)</span></b></div>`;
   
-  // Inject clean chart wrapper layout element container at the base of data nodes
-  html+=`<div class="chart-container"><h3>📊 Liter Consumption Breakdown</h3><div class="chart-wrapper"><canvas id="chart_${cat}"></canvas></div></div>`;
+  // Clean chart container wrapper featuring a newly added dynamic text breakdown list node container
+  html+=`<div class="chart-container">
+            <h3>📊 Volume Breakdown</h3>
+            <ul class="liter-list-summary" id="list_${cat}"></ul>
+            <div class="chart-wrapper"><canvas id="chart_${cat}"></canvas></div>
+         </div>`;
   
   document.getElementById(cat).innerHTML=html;
  });
@@ -464,9 +492,12 @@ function recalc(shouldSave = true){
  let catVols = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
  let quantitiesToSave = {};
  
- // Data arrays tracking live product chart structures
- let chartLabels = [];
- let chartData = [];
+ // Arrays tracking global products with active volumes across tabs
+ let globalChartLabels = [];
+ let globalChartData = [];
+ 
+ // Dictionary structure tracking item breakdowns by category cleanly
+ let activeBreakdowns = { milk: '', milk1l: '', curd: '', p200: '' };
 
  document.querySelectorAll('input[data-name]').forEach(inp=>{
    let rawValue = inp.value;
@@ -492,10 +523,12 @@ function recalc(shouldSave = true){
         catVols[p.cat] += itemVol;
      }
      
-     // Only push items onto diagram metrics structure if volume is valid
      if (itemVol > 0) {
-         chartLabels.push(p.name);
-         chartData.push(parseFloat(itemVol.toFixed(2)));
+         globalChartLabels.push(p.name);
+         globalChartData.push(parseFloat(itemVol.toFixed(2)));
+         
+         // Generate text list elements smoothly for the itemized display tracking volume values
+         activeBreakdowns[p.cat] += `<li class="liter-list-item"><b>${p.name}</b> <span>${itemVol.toFixed(2)} L</span></li>`;
      }
    }
  });
@@ -505,18 +538,22 @@ function recalc(shouldSave = true){
  for(let cat in catTotals){
     document.getElementById(cat+'_total').innerText='₹'+catTotals[cat].toFixed(2);
     document.getElementById(cat+'_vtotal').innerText='('+catVols[cat].toFixed(2)+' L)';
+    
+    // Inject generated list or a clean placeholder if no volume entries exist in that tab
+    let targetList = document.getElementById('list_'+cat);
+    if(targetList) {
+        targetList.innerHTML = activeBreakdowns[cat] || '<li class="liter-list-item" style="opacity:0.5; justify-content:center;">No active quantities configured</li>';
+    }
  }
 
  if(shouldSave) {
     localStorage.setItem('milk_calc_quantities', JSON.stringify(quantitiesToSave));
  }
  
- // Trigger dynamic initialization or live refresh of layout chart instance
- updateChart(chartLabels, chartData);
+ updateChart(globalChartLabels, globalChartData);
 }
 
 function updateChart(labels, data) {
-    // Detect active visible content section node
     const activeSection = document.querySelector('.section.active');
     if (!activeSection || activeSection.id === 'settings') return;
     
@@ -524,7 +561,6 @@ function updateChart(labels, data) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
 
-    // Check configuration variables mapping body text values for dark/light label themes
     const isLight = document.body.classList.contains('light');
     const labelColor = isLight ? '#0f172a' : '#f8fafc';
 
@@ -532,7 +568,6 @@ function updateChart(labels, data) {
         milkPieChart.destroy();
     }
 
-    // Colors customized to gracefully pair with the application's clean aesthetic theme
     const sliceColors = [
         '#22c55e', '#3b82f6', '#eab308', '#a855f7', 
         '#ec4899', '#f97316', '#06b6d4', '#14b8a6',
@@ -600,12 +635,12 @@ function buildSettings(){
 function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
- recalc(false); // Force computation to update chart into correct grid canvas placement context
+ recalc(false); 
 }
 
 function toggleTheme(){
     document.body.classList.toggle('light');
-    recalc(false); // Force refresh context mapping colors
+    recalc(false); 
 }
 
 function resetAll(){
