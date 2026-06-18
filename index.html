@@ -107,7 +107,7 @@ body{
     transform:translateY(-2px);
 }
 
-/* SECTIONS - SET TO 6 COLUMNS */
+/* SECTIONS - SET TO 6 COLUMNS ON ULTRA-WIDE */
 .section{
     display:none;
     padding:15px;
@@ -222,7 +222,7 @@ input::placeholder{
     transform: scale(1.1);
 }
 
-/* RESPONSIVE BREAKPOINTS MODIFIED FOR 6 COLUMNS */
+/* RESPONSIVE BREAKPOINTS - MODIFIED TO MAINTAIN 5 COLUMNS ON LAPTOPS */
 @media(max-width:1600px){
     .section.active{
         grid-template-columns: repeat(5, 1fr);
@@ -231,7 +231,13 @@ input::placeholder{
 
 @media(max-width:1400px){
     .section.active{
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr); /* Updated from 4 to 5 for standard laptop layouts */
+    }
+}
+
+@media(max-width:1150px){
+    .section.active{
+        grid-template-columns: repeat(3, 1fr); /* Balanced middle ground layout step */
     }
 }
 
