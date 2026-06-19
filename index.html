@@ -578,7 +578,7 @@ function build(){
                 <div class="legend-header-row">
                     <h3>🏷️ Product Index</h3>
                     <div class="btn-group">
-                        <button class="whatsapp-share-btn" onclick="shareToWhatsApp('${cat}')">
+                        <button class="whatsapp-share-btn" onclick="shareToWhatsAppCombined()">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397 0 11.93 0c3.165.001 6.14 1.233 8.377 3.473 2.238 2.24 3.467 5.218 3.466 8.385-.004 6.582-5.34 11.93-11.874 11.93-2.01 0-3.987-.511-5.741-1.487L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.742 1.451 5.432.002 9.851-4.382 9.854-9.743.001-2.573-1.002-4.99-2.825-6.815C16.554 2.221 14.15 1.01 11.66 1.01c-5.434 0-9.856 4.383-9.86 9.745-.001 1.654.436 3.274 1.266 4.699l-.101.161-1.011 3.69 3.773-.982.16.095zM17.02 14.38c-.295-.147-1.74-.858-2.01-.955-.269-.098-.466-.147-.66.147-.197.296-.757.955-.93 1.15-.172.196-.346.22-.64.074-.297-.148-1.25-.461-2.383-1.472-.882-.787-1.478-1.759-1.65-2.055-.174-.296-.018-.456.13-.603.134-.132.296-.347.446-.52.149-.174.198-.297.297-.494.1-.197.05-.371-.025-.52-.075-.148-.66-1.592-.904-2.178-.238-.571-.48-.493-.66-.502-.17-.008-.365-.01-.56-.01-.197 0-.517.073-.786.37-.27.297-1.03 1.012-1.03 2.47 0 1.456 1.06 2.864 1.208 3.061.149.198 2.086 3.186 5.05 4.464.706.304 1.257.487 1.687.625.71.226 1.356.194 1.867.118.571-.085 1.74-.71 1.986-1.396.247-.687.247-1.276.173-1.396-.073-.12-.27-.194-.566-.342z"/></svg>
                             WhatsApp
                         </button>
@@ -753,12 +753,14 @@ function updateChart(labels, data, catId) {
     });
 }
 
-function shareToWhatsApp(catId) {
+// Fixed Combined WhatsApp Messenger compiler engine
+function shareToWhatsAppCombined() {
     let grandTotal = 0;
     let grandVolume = 0;
     let lines = [];
 
-    products.filter(p => p.cat === catId).forEach(p => {
+    // System now steps through ALL items on every tab automatically
+    products.forEach(p => {
         let inp = document.querySelector(`input[data-name="${p.name}"]`);
         if (inp) {
             let q = evalExpr(inp.value) || 0;
@@ -767,31 +769,29 @@ function shareToWhatsApp(catId) {
                 let tot = q * p.price;
                 grandTotal += tot;
                 grandVolume += itemVol;
-                lines.push(`• ${p.name}: ${itemVol} L x ₹${p.price} = ₹${tot.toFixed(2)}`);
+                lines.push(`• ${p.name}: ${itemVol.toFixed(2)} L (Qty: ${q}) @ ₹${p.price} = ₹${tot.toFixed(2)}`);
             }
         }
     });
 
     if (lines.length === 0) {
-        alert("Please enter quantities before sharing!");
+        alert("Please enter quantities across your categories before sharing!");
         return;
     }
 
-    let tabTitle = catId === 'milk' ? 'Milk 1/2 Ltr' : (catId === 'milk1l' ? 'Milk 1 Ltr' : catId.charAt(0).toUpperCase() + catId.slice(1));
     let dateStr = new Date().toDateString();
 
-    let textMessage = `📦 MILK DELIVERY BILL\n` +
-                      `📅 Date: ${dateStr}\n` +
-                      `🥛 ${tabTitle} Section:\n` +
-                      lines.join('\n') + `\n` +
-                      `💰 GRAND TOTAL: ₹${grandTotal.toFixed(2)}\n` +
-                      `📊 TOTAL VOLUME: ${grandVolume.toFixed(2)} L`;
+    let textMessage = `📦 COMBINED DELIVERY STATEMENT\n` +
+                      `📅 Date: ${dateStr}\n\n` +
+                      `🛒 Itemized Log Summary:\n` +
+                      lines.join('\n') + `\n\n` +
+                      `💰 COMBINED TOTAL BILL: ₹${grandTotal.toFixed(2)}\n` +
+                      `📊 COMBINED TOTAL VOLUME: ${grandVolume.toFixed(2)} L`;
 
     let url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(textMessage);
     window.open(url, '_blank');
 }
 
-// Master global ledger compiler - gathers EVERYTHING into your workbook tabs automatically
 function exportToExcelYearlyAll() {
     const months = [
         "January", "February", "March", "April", "May", "June", 
@@ -811,7 +811,6 @@ function exportToExcelYearlyAll() {
         const totalDays = new Date(currentYear, mIdx + 1, 0).getDate();
         const sheetRows = [];
 
-        // Build global horizontal row structures incorporating ALL categories side-by-side
         const headers = ["Date"];
         products.forEach(p => {
             headers.push(`${p.name} (Qty)`);
@@ -852,7 +851,6 @@ function exportToExcelYearlyAll() {
 
         const ws = XLSX.utils.aoa_to_sheet(sheetRows);
 
-        // Retain requested structural column and row window freezing
         ws['!freeze'] = {
             xSplit: 1, 
             ySplit: 1, 
