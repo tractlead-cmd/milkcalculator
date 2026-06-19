@@ -160,7 +160,7 @@ body{
     font-weight: normal;
 }
 
-/* NEW THREE-SLIDE ROW DASHBOARD DESIGN */
+/* THREE-SLIDE ROW DASHBOARD DESIGN */
 .dashboard-row {
     grid-column: 1 / -1;
     background: rgba(30,41,59,.4);
@@ -169,7 +169,7 @@ body{
     padding: 20px;
     margin-top: 10px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr; /* Exactly 3 Equal Column Slides */
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
     align-items: start;
 }
@@ -191,7 +191,7 @@ body{
     padding-bottom: 8px;
 }
 
-/* LEFT SIDE PANEL: BREAKDOWN LIST */
+/* PANEL LISTSUMMARY */
 .liter-list-summary {
     width: 100%;
     margin: 0;
@@ -215,7 +215,7 @@ body.light .liter-list-item {
     background: rgba(0, 0, 0, 0.04);
 }
 
-/* CENTER PANEL: PIE CHART CONTAINER */
+/* PANEL CHART */
 .chart-wrapper {
     position: relative;
     width: 100%;
@@ -223,7 +223,7 @@ body.light .liter-list-item {
     margin: auto;
 }
 
-/* RIGHT SIDE PANEL: CUSTOM LEGEND CONTAINER */
+/* PANEL LEGEND */
 .custom-legend-list {
     display: flex;
     flex-direction: column;
@@ -344,38 +344,30 @@ input::placeholder{
     }
 }
 
-/* MOBILE Layout Conversion */
 @media(max-width:768px){
     .header h2{
         font-size:15px;
     }
-    
     #date {
         font-size: 11px;
     }
-
     .total{
         font-size:18px;
     }
-
     .actions{
         display:grid;
         grid-template-columns:1fr 1fr;
     }
-
     .actions button{
         min-width:unset;
     }
-
     .section.active{
         grid-template-columns: 1fr;
     }
-    
     .dashboard-row {
         grid-template-columns: 1fr;
         gap: 25px;
     }
-    
     .custom-legend-list {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -432,13 +424,13 @@ input::placeholder{
 <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
 
 <script>
-// Default complete list of items - Reordered so Family Milk is positioned next to Heritage Milk
+// Adjusted 'vol' parameters to 1.0 for the main Milk items so input counts match your exact litrage order requirements.
 const defaultProducts = [
-{name:'Orange Milk',price:53,cat:'milk',vol:0.5},
-{name:'Blue Milk',price:47,cat:'milk',vol:0.5},
-{name:'Green Milk',price:51,cat:'milk',vol:0.5},
-{name:'Heritage Milk',price:58,cat:'milk',vol:0.5},
-{name:'Family Milk',price:53,cat:'milk',vol:0.5},
+{name:'Orange Milk',price:54,cat:'milk',vol:1.0},
+{name:'Blue Milk',price:48,cat:'milk',vol:1.0},
+{name:'Green Milk',price:52,cat:'milk',vol:1.0},
+{name:'Heritage Milk',price:60,cat:'milk',vol:1.0},
+{name:'Family Milk',price:54,cat:'milk',vol:1.0},
 {name:'Orange Milk 1L',price:51,cat:'milk1l',vol:1.0},
 {name:'Blue Milk 1L',price:46,cat:'milk1l',vol:1.0},
 {name:'Nandini Curd',price:54,cat:'curd',vol:0.5},
@@ -448,7 +440,6 @@ const defaultProducts = [
 {name:'Nandini Curd 200ml',price:12.5,cat:'p200',vol:0.2}
 ];
 
-// Note: If you have already loaded the app previously, you may need to click "Reset App Cache" in Settings to overwrite the old sequence stored in your browser's LocalStorage.
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
 let milkPieChart = null; 
 
@@ -458,23 +449,18 @@ const sliceColors = [
     '#6366f1', '#f43f5e', '#10b981', '#84cc16'
 ];
 
-// Realign weights and keep custom structural sync
+// Always enforce default product specs to ensure local volumes overwrite properly
 let structuralMap = new Map(defaultProducts.map(p => [p.name, p]));
-products.sort((a, b) => {
-    let order = defaultProducts.map(x => x.name);
-    return order.indexOf(a.name) - order.indexOf(b.name);
-});
-
 products.forEach(p => {
     let match = structuralMap.get(p.name);
     if(match) p.vol = match.vol;
 });
 
-defaultProducts.forEach(dp => {
-    if(!products.find(p => p.name === dp.name)) {
-        products.push(dp);
-    }
+products.sort((a, b) => {
+    let order = defaultProducts.map(x => x.name);
+    return order.indexOf(a.name) - order.indexOf(b.name);
 });
+
 localStorage.setItem('products', JSON.stringify(products));
 
 function evalExpr(v){
