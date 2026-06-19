@@ -753,13 +753,11 @@ function updateChart(labels, data, catId) {
     });
 }
 
-// Fixed Combined WhatsApp Messenger compiler engine
 function shareToWhatsAppCombined() {
     let grandTotal = 0;
     let grandVolume = 0;
     let lines = [];
 
-    // System now steps through ALL items on every tab automatically
     products.forEach(p => {
         let inp = document.querySelector(`input[data-name="${p.name}"]`);
         if (inp) {
@@ -769,7 +767,7 @@ function shareToWhatsAppCombined() {
                 let tot = q * p.price;
                 grandTotal += tot;
                 grandVolume += itemVol;
-                lines.push(`• ${p.name}: ${itemVol.toFixed(2)} L (Qty: ${q}) @ ₹${p.price} = ₹${tot.toFixed(2)}`);
+                lines.push(`• ${p.name}: ${itemVol.toFixed(2)} L (Qty: ${q}) @ Rs ${p.price} = Rs ${tot.toFixed(2)}`);
             }
         }
     });
@@ -781,12 +779,12 @@ function shareToWhatsAppCombined() {
 
     let dateStr = new Date().toDateString();
 
-    let textMessage = `📦 DELIVERY BILL\n` +
-                      `📅 Date: ${dateStr}\n\n` +
-                      `🛒 Itemized Log Summary:\n` +
+    let textMessage = `DELIVERY BILL\n` +
+                      `Date: ${dateStr}\n\n` +
+                      `Itemized Log Summary:\n` +
                       lines.join('\n') + `\n\n` +
-                      `💰 TOTAL BILL: ₹${grandTotal.toFixed(2)}\n` +
-                      `📊 TOTAL VOLUME: ${grandVolume.toFixed(2)} L`;
+                      `TOTAL BILL: Rs ${grandTotal.toFixed(2)}\n` +
+                      `TOTAL VOLUME: ${grandVolume.toFixed(2)} L`;
 
     let url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(textMessage);
     window.open(url, '_blank');
