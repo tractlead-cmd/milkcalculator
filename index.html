@@ -466,8 +466,12 @@ input::placeholder{
     <div class="header">
         <h2>🥛 Milk Calc</h2>
         <div id="date"></div>
-        <div class="total" id="grand">₹0.00 | 0.00 L</div>
-    </div>
+        <div class="total" id="grand">
+        Grand Total: ₹0.00<br>
+        (-₹35): ₹0.00<br>
+        0.00 L
+        </div>
+     </div>
 
     <div class="actions">
         <button onclick="showTab('milk')">🥛 Milk 1/2 Ltr</button>
@@ -495,6 +499,7 @@ const defaultProducts = [
 {name:'Blue Milk',price:48,cat:'milk',vol:1.0},
 {name:'Green Milk',price:52,cat:'milk',vol:1.0},
 {name:'Heritage Milk',price:60,cat:'milk',vol:1.0},
+{name:'Samruddhi Milk',price:56,cat:'milk',vol:1.0},
 {name:'Family Milk',price:54,cat:'milk',vol:1.0},
 {name:'Orange Milk 1L',price:51,cat:'milk1l',vol:1.0},
 {name:'Blue Milk 1L',price:46,cat:'milk1l',vol:1.0},
@@ -664,7 +669,12 @@ function recalc(shouldSave = true){
    }
  });
  
- document.getElementById('grand').innerText='₹' + grand.toFixed(2) + ' | ' + grandVol.toFixed(2) + ' L';
+ const afterDeduction = grand - 35;
+
+document.getElementById('grand').innerHTML =
+`Grand Total: ₹${grand.toFixed(2)}<br>
+Grand Total - ₹35: ₹${afterDeduction.toFixed(2)}<br>
+${grandVol.toFixed(2)} L`;
  
  const activeSection = document.querySelector('.section.active');
  const currentCatId = activeSection ? activeSection.id : 'milk';
