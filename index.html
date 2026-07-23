@@ -672,7 +672,17 @@ function recalc(shouldSave = true){
  const afterDeduction = grand - 35;
 
 document.getElementById('grand').innerHTML =
-`Grand Total: ₹${grand.toFixed(2)} (-₹35) = ₹${afterDeduction.toFixed(2)} [ ${grandVol.toFixed(2)} L ]`;
+`Grand Total: ₹${grand.toFixed(2)} (-₹35) =
+<span style="
+    background:white;
+    color:#22c55e;
+    padding:3px 8px;
+    border-radius:6px;
+    font-weight:800;
+">
+₹${afterDeduction.toFixed(2)}
+</span>
+[ ${grandVol.toFixed(2)} L ]`;
  
  const activeSection = document.querySelector('.section.active');
  const currentCatId = activeSection ? activeSection.id : 'milk';
