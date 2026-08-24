@@ -9,14 +9,36 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
+/* DARK MODE (DEFAULT) */
 :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --card2: #0f172a;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent: #22c55e;
+    --accent2: #4ade80;
+    --border: rgba(255, 255, 255, 0.1);
+    --input-bg: #334155;
+    --header-bg: rgba(15, 23, 42, 0.85);
+    --list-bg: rgba(255, 255, 255, 0.05);
+    --btn-hover-glow: rgba(34, 197, 94, 0.4);
+}
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode {
     --bg: #f1f5f9;
     --card: #ffffff;
     --card2: #f8fafc;
     --text: #0f172a;
+    --text-muted: #64748b;
     --accent: #22c55e;
     --accent2: #16a34a;
-    --border: rgba(0,0,0,.08);
+    --border: rgba(0, 0, 0, 0.08);
+    --input-bg: #ffffff;
+    --header-bg: rgba(241, 245, 249, 0.9);
+    --list-bg: rgba(0, 0, 0, 0.04);
+    --btn-hover-glow: rgba(34, 197, 94, 0.2);
 }
 
 * {
@@ -25,10 +47,11 @@
 
 body {
     margin: 0;
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* STICKY WRAPPER */
@@ -36,15 +59,16 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #f1f5f9;
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
+    transition: background-color 0.3s;
 }
 
 /* COMPACT SINGLE-ROW HEADER */
 .header {
     padding: 10px 15px;
     backdrop-filter: blur(15px);
-    background: rgba(241, 245, 249, 0.9);
+    background: var(--header-bg);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -55,20 +79,23 @@ body {
     margin: 0;
     font-size: 18px;
     white-space: nowrap;
+    color: var(--text);
 }
 
 #date {
-    opacity: .7;
+    opacity: 0.8;
+    color: var(--text-muted);
     font-size: 12px;
     white-space: nowrap;
 }
 
 .total {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--accent2);
-    text-shadow: 0 0 15px rgba(34,197,94,.2);
+    text-shadow: 0 0 15px rgba(34,197,94,0.3);
     white-space: nowrap;
+    text-align: right;
 }
 
 /* BUTTONS */
@@ -83,22 +110,36 @@ body {
     flex: 1;
     min-width: 100px;
     padding: 10px;
-    border: none;
+    border: 1px solid var(--border);
     border-radius: 10px;
     background: linear-gradient(135deg,#22c55e,#16a34a);
-    color: white;
+    color: #ffffff;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    transition: .25s;
-    box-shadow: 0 4px 12px rgba(34,197,94,.20);
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px var(--btn-hover-glow);
 }
 
 .actions button:hover {
     transform: translateY(-2px);
+    filter: brightness(1.15);
+    box-shadow: 0 6px 18px var(--btn-hover-glow);
 }
 
-/* SECTIONS - 6 COLUMNS ON ULTRA-WIDE */
+/* THEME TOGGLE BUTTON */
+.theme-btn {
+    background: var(--card) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+}
+
+.theme-btn:hover {
+    background: var(--input-bg) !important;
+}
+
+/* SECTIONS */
 .section {
     display: none;
     padding: 15px;
@@ -116,8 +157,8 @@ body {
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 18px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.05);
-    transition: .25s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.25s, background-color 0.3s, border-color 0.3s;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -125,6 +166,7 @@ body {
 
 .card:hover {
     transform: translateY(-3px);
+    border-color: rgba(34, 197, 94, 0.4);
 }
 
 .row {
@@ -136,15 +178,17 @@ body {
 
 .row b {
     font-size: 17px;
+    color: var(--text);
 }
 
 .row span {
     font-size: 16px;
+    color: var(--text);
 }
 
 .liters-label {
     font-size: 13px;
-    opacity: 0.8;
+    color: var(--text-muted);
     font-weight: normal;
 }
 
@@ -174,6 +218,7 @@ body {
     font-size: 15px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    color: var(--text);
     opacity: 0.9;
     border-bottom: 1px solid var(--border);
     padding-bottom: 8px;
@@ -185,7 +230,7 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 4px;
+    padding-bottom: 8px;
     margin-bottom: 15px;
 }
 
@@ -207,20 +252,20 @@ body {
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 5px 12px;
+    padding: 6px 12px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s, filter 0.2s;
     box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
 }
 
 .whatsapp-share-btn:hover {
     transform: scale(1.04);
-    background: #20ba56;
+    filter: brightness(1.1);
 }
 
 .excel-download-btn {
@@ -228,20 +273,20 @@ body {
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 5px 12px;
+    padding: 6px 12px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 6px;
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s, filter 0.2s;
     box-shadow: 0 2px 8px rgba(16, 124, 65, 0.3);
 }
 
 .excel-download-btn:hover {
     transform: scale(1.04);
-    background: #0e6c38;
+    filter: brightness(1.15);
 }
 
 /* PANEL LIST SUMMARY */
@@ -259,9 +304,11 @@ body {
     display: flex;
     justify-content: space-between;
     padding: 10px 14px;
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--list-bg);
+    border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 14px;
+    color: var(--text);
 }
 
 /* PANEL CHART */
@@ -288,6 +335,7 @@ body {
     gap: 10px;
     font-size: 14px;
     padding: 4px 0;
+    color: var(--text);
 }
 
 .legend-color-box {
@@ -306,19 +354,19 @@ input {
     font-size: 18px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: #ffffff;
+    background: var(--input-bg);
     color: var(--text);
     outline: none;
-    transition: .25s;
+    transition: border-color 0.25s, box-shadow 0.25s;
 }
 
 input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(34,197,94,.2);
+    box-shadow: 0 0 10px rgba(34,197,94,0.3);
 }
 
 input::placeholder {
-    color: #94a3b8;
+    color: var(--text-muted);
 }
 
 /* CATEGORY TOTAL CARD */
@@ -326,9 +374,10 @@ input::placeholder {
     grid-column: 1 / -1;
     background: linear-gradient(
         135deg,
-        rgba(34,197,94,.15),
-        rgba(22,163,74,.15)
+        rgba(34,197,94,0.2),
+        rgba(22,163,74,0.2)
     ) !important;
+    border: 1px solid rgba(34,197,94,0.4) !important;
 }
 
 /* BACK TO TOP BUTTON */
@@ -348,12 +397,13 @@ input::placeholder {
     display: none;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(34,197,94, 0.4);
-    transition: transform 0.2s;
+    box-shadow: 0 4px 15px rgba(34,197,94,0.4);
+    transition: transform 0.2s, filter 0.2s;
 }
 
 .scroll-top-btn:hover {
     transform: scale(1.1);
+    filter: brightness(1.1);
 }
 
 /* RESPONSIVE BREAKPOINTS */
@@ -379,7 +429,7 @@ input::placeholder {
 @media(max-width:768px){
     .header h2{ font-size:15px; }
     #date { font-size: 11px; }
-    .total{ font-size:18px; }
+    .total{ font-size:15px; }
     .actions{ display:grid; grid-template-columns:1fr 1fr; }
     .actions button{ min-width:unset; }
     .section.active{ grid-template-columns: 1fr; }
@@ -388,23 +438,40 @@ input::placeholder {
 }
 
 .hide-btn{
-    background:#ef4444;
-    padding:6px 10px;
-    border:none;
-    border-radius:8px;
-    color:white;
-    cursor:pointer;
-    margin-left:10px;
+    background: #ef4444;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: filter 0.2s;
+}
+
+.hide-btn:hover {
+    filter: brightness(1.15);
 }
 
 .setting-input{
-    background:#ffffff;
-    color:var(--text);
+    background: var(--input-bg);
+    color: var(--text);
 }
 
 .danger-btn {
     background: #ef4444 !important;
     margin-top: 15px;
+}
+
+.save-btn {
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
 }
 </style>
 </head>
@@ -428,6 +495,7 @@ input::placeholder {
         <button onclick="showTab('p200')">📦 200ML</button>
         <button onclick="showTab('water')">💧 Water</button>
         <button onclick="showTab('settings')">⚙️ Settings</button>
+        <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
         <button onclick="resetAll()">Reset</button>
         <button onclick="copyTotal()">Copy Total</button>
     </div>
@@ -486,6 +554,25 @@ products.sort((a, b) => {
 });
 
 localStorage.setItem('products', JSON.stringify(products));
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        document.getElementById('themeBtn').innerText = '☀️ Light';
+    } else {
+        document.body.classList.remove('light-mode');
+        document.getElementById('themeBtn').innerText = '🌙 Dark';
+    }
+}
+
+function toggleTheme() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    document.getElementById('themeBtn').innerText = isLight ? '☀️ Light' : '🌙 Dark';
+    recalc(false);
+}
 
 function evalExpr(v){
  if(!v) return 0;
@@ -694,6 +781,9 @@ function updateChart(labels, data, catId) {
         data = [0];
     }
 
+    const isLight = document.body.classList.contains('light-mode');
+    const borderColor = isLight ? '#ffffff' : '#1e293b';
+
     milkPieChart = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -702,7 +792,7 @@ function updateChart(labels, data, catId) {
                 data: data,
                 backgroundColor: sliceColors.slice(0, labels.length),
                 borderWidth: 1,
-                borderColor: '#ffffff'
+                borderColor: borderColor
             }]
         },
         options: {
@@ -847,8 +937,8 @@ function buildSettings(){
    </div>`;
  });
  html+=`
- <button onclick="savePrices()">Save Prices</button>
- <button class="danger-btn" onclick="clearCache()">Reset App Cache</button>
+ <button class="save-btn" onclick="savePrices()">Save Prices</button>
+ <button class="danger-btn save-btn" onclick="clearCache()">Reset App Cache</button>
  </div>`;
  document.getElementById('settings').innerHTML=html;
 }
@@ -915,6 +1005,7 @@ function scrollToTop() {
 }
 
 document.getElementById('date').innerText=new Date().toDateString();
+initTheme();
 build();
 </script>
 </body>
