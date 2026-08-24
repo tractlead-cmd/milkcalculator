@@ -9,38 +9,26 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
-:root{
-    --bg:#0f172a;
-    --card:#1e293b;
-    --card2:#334155;
-    --text:#f8fafc;
-    --accent:#22c55e;
-    --accent2:#16a34a;
-    --border:rgba(255,255,255,.08);
+:root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --card2: #f8fafc;
+    --text: #0f172a;
+    --accent: #22c55e;
+    --accent2: #16a34a;
+    --border: rgba(0,0,0,.08);
 }
 
-body.light{
-    --bg:#f1f5f9;
-    --card:#ffffff;
-    --card2:#f8fafc;
-    --text:#0f172a;
-    --border:rgba(0,0,0,.08);
+* {
+    box-sizing: border-box;
 }
 
-body.light .sticky-navbar {
-    background: #f1f5f9;
-}
-
-*{
-    box-sizing:border-box;
-}
-
-body{
-    margin:0;
-    font-family:'Segoe UI',sans-serif;
-    background:linear-gradient(135deg,#0f172a,#111827);
-    color:var(--text);
-    min-height:100vh;
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
 }
 
 /* STICKY WRAPPER */
@@ -48,111 +36,110 @@ body{
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #0f172a;
+    background: #f1f5f9;
     border-bottom: 1px solid var(--border);
 }
 
 /* COMPACT SINGLE-ROW HEADER */
-.header{
+.header {
     padding: 10px 15px;
-    backdrop-filter:blur(15px);
-    background:rgba(15,23,42,.9);
+    backdrop-filter: blur(15px);
+    background: rgba(241, 245, 249, 0.9);
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 10px;
 }
 
-.header h2{
-    margin:0;
-    font-size:18px;
+.header h2 {
+    margin: 0;
+    font-size: 18px;
     white-space: nowrap;
 }
 
-#date{
-    opacity:.7;
-    font-size:12px;
+#date {
+    opacity: .7;
+    font-size: 12px;
     white-space: nowrap;
 }
 
-.total{
-    font-size:22px;
-    font-weight:800;
-    color:var(--accent);
-    text-shadow:0 0 15px rgba(34,197,94,.4);
+.total {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent2);
+    text-shadow: 0 0 15px rgba(34,197,94,.2);
     white-space: nowrap;
 }
 
 /* BUTTONS */
-.actions{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
     padding: 8px 15px 12px 15px;
 }
 
-.actions button{
-    flex:1;
-    min-width:100px;
-    padding:10px;
-    border:none;
-    border-radius:10px;
-    background:linear-gradient(135deg,#22c55e,#16a34a);
-    color:white;
-    font-weight:600;
-    font-size:14px;
-    cursor:pointer;
-    transition:.25s;
-    box-shadow:0 4px 12px rgba(34,197,94,.20);
+.actions button {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: .25s;
+    box-shadow: 0 4px 12px rgba(34,197,94,.20);
 }
 
-.actions button:hover{
-    transform:translateY(-2px);
+.actions button:hover {
+    transform: translateY(-2px);
 }
 
 /* SECTIONS - 6 COLUMNS ON ULTRA-WIDE */
-.section{
-    display:none;
-    padding:15px;
+.section {
+    display: none;
+    padding: 15px;
     grid-template-columns: repeat(6, 1fr);
     gap: 15px;
 }
 
-.section.active{
-    display:grid;
+.section.active {
+    display: grid;
 }
 
 /* CARDS */
-.card{
-    background:rgba(30,41,59,.75);
-    backdrop-filter:blur(12px);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:18px;
-    box-shadow:0 8px 25px rgba(0,0,0,.25);
-    transition:.25s;
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.05);
+    transition: .25s;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
-.card:hover{
-    transform:translateY(-3px);
+.card:hover {
+    transform: translateY(-3px);
 }
 
-.row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
-.row b{
-    font-size:17px;
+.row b {
+    font-size: 17px;
 }
 
-.row span{
-    font-size:16px;
+.row span {
+    font-size: 16px;
 }
 
 .liters-label {
@@ -164,7 +151,7 @@ body{
 /* THREE-SLIDE ROW DASHBOARD DESIGN */
 .dashboard-row {
     grid-column: 1 / -1;
-    background: rgba(30,41,59,.4);
+    background: var(--card2);
     border: 1px solid var(--border);
     border-radius: 18px;
     padding: 20px;
@@ -257,7 +244,7 @@ body{
     background: #0e6c38;
 }
 
-/* PANEL LISTSUMMARY */
+/* PANEL LIST SUMMARY */
 .liter-list-summary {
     width: 100%;
     margin: 0;
@@ -272,13 +259,9 @@ body{
     display: flex;
     justify-content: space-between;
     padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(0, 0, 0, 0.04);
     border-radius: 8px;
     font-size: 14px;
-}
-
-body.light .liter-list-item {
-    background: rgba(0, 0, 0, 0.04);
 }
 
 /* PANEL CHART */
@@ -315,37 +298,36 @@ body.light .liter-list-item {
 }
 
 /* INPUTS */
-input{
-    width:100%;
-    margin-top:12px;
-    margin-bottom:12px;
-    padding:15px;
-    font-size:20px;
-    border:none;
-    border-radius:12px;
-    background:#0f172a;
-    color:white;
-    outline:none;
-    border:2px solid transparent;
-    transition:.25s;
+input {
+    width: 100%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    font-size: 18px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #ffffff;
+    color: var(--text);
+    outline: none;
+    transition: .25s;
 }
 
-input:focus{
-    border-color:var(--accent);
-    box-shadow:0 0 15px rgba(34,197,94,.3);
+input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(34,197,94,.2);
 }
 
-input::placeholder{
-    color:#94a3b8;
+input::placeholder {
+    color: #94a3b8;
 }
 
 /* CATEGORY TOTAL CARD */
 .category-total-card {
     grid-column: 1 / -1;
-    background:linear-gradient(
+    background: linear-gradient(
         135deg,
-        rgba(34,197,94,.2),
-        rgba(22,163,74,.2)
+        rgba(34,197,94,.15),
+        rgba(22,163,74,.15)
     ) !important;
 }
 
@@ -376,67 +358,33 @@ input::placeholder{
 
 /* RESPONSIVE BREAKPOINTS */
 @media(max-width:1600px){
-    .section.active{
-        grid-template-columns: repeat(5, 1fr);
-    }
+    .section.active{ grid-template-columns: repeat(5, 1fr); }
 }
 
 @media(max-width:1400px){
-    .section.active{
-        grid-template-columns: repeat(5, 1fr);
-    }
+    .section.active{ grid-template-columns: repeat(5, 1fr); }
 }
 
 @media(max-width:1150px){
-    .section.active{
-        grid-template-columns: repeat(3, 1fr);
-    }
-    .dashboard-row {
-        grid-template-columns: 1fr 1fr;
-    }
-    .dashboard-slide.legend-slide {
-        grid-column: 1 / -1;
-    }
-    .custom-legend-list {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-    }
+    .section.active{ grid-template-columns: repeat(3, 1fr); }
+    .dashboard-row { grid-template-columns: 1fr 1fr; }
+    .dashboard-slide.legend-slide { grid-column: 1 / -1; }
+    .custom-legend-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 }
 
 @media(max-width:1024px){
-    .section.active{
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .section.active{ grid-template-columns: repeat(2, 1fr); }
 }
 
 @media(max-width:768px){
-    .header h2{
-        font-size:15px;
-    }
-    #date {
-        font-size: 11px;
-    }
-    .total{
-        font-size:18px;
-    }
-    .actions{
-        display:grid;
-        grid-template-columns:1fr 1fr;
-    }
-    .actions button{
-        min-width:unset;
-    }
-    .section.active{
-        grid-template-columns: 1fr;
-    }
-    .dashboard-row {
-        grid-template-columns: 1fr;
-        gap: 25px;
-    }
-    .custom-legend-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .header h2{ font-size:15px; }
+    #date { font-size: 11px; }
+    .total{ font-size:18px; }
+    .actions{ display:grid; grid-template-columns:1fr 1fr; }
+    .actions button{ min-width:unset; }
+    .section.active{ grid-template-columns: 1fr; }
+    .dashboard-row { grid-template-columns: 1fr; gap: 25px; }
+    .custom-legend-list { grid-template-columns: repeat(2, 1fr); }
 }
 
 .hide-btn{
@@ -450,8 +398,8 @@ input::placeholder{
 }
 
 .setting-input{
-    background:#0f172a;
-    color:white;
+    background:#ffffff;
+    color:var(--text);
 }
 
 .danger-btn {
@@ -471,15 +419,15 @@ input::placeholder{
         (-₹35): ₹0.00<br>
         0.00 L
         </div>
-     </div>
+    </div>
 
     <div class="actions">
         <button onclick="showTab('milk')">🥛 Milk 1/2 Ltr</button>
         <button onclick="showTab('milk1l')">🥛 Milk 1 Ltr</button>
         <button onclick="showTab('curd')">🍶 Curd</button>
         <button onclick="showTab('p200')">📦 200ML</button>
+        <button onclick="showTab('water')">💧 Water</button>
         <button onclick="showTab('settings')">⚙️ Settings</button>
-        <button onclick="toggleTheme()">🌙/☀️</button>
         <button onclick="resetAll()">Reset</button>
         <button onclick="copyTotal()">Copy Total</button>
     </div>
@@ -489,6 +437,7 @@ input::placeholder{
 <div id="milk1l" class="section"></div>
 <div id="curd" class="section"></div>
 <div id="p200" class="section"></div>
+<div id="water" class="section"></div>
 <div id="settings" class="section"></div>
 
 <button id="scrollTopBtn" class="scroll-top-btn" onclick="scrollToTop()">▲</button>
@@ -507,7 +456,8 @@ const defaultProducts = [
 {name:'Heritage Curd',price:49,cat:'curd',vol:1.0},
 {name:'Heritage Milk 200ml',price:8.5,cat:'p200',vol:0.2},
 {name:'Heritage Curd 200ml',price:8.5,cat:'p200',vol:0.2},
-{name:'Nandini Curd 200ml',price:12.5,cat:'p200',vol:0.2}
+{name:'Nandini Curd 200ml',price:12.5,cat:'p200',vol:0.2},
+{name:'Water',price:18,cat:'water',vol:1.0}
 ];
 
 let products = JSON.parse(localStorage.getItem('products')) || defaultProducts;
@@ -525,6 +475,11 @@ products.forEach(p => {
     if(match) p.vol = match.vol;
 });
 
+// Ensure Water exists in products if loaded from older localStorage
+if(!products.some(p => p.name === 'Water')) {
+    products.push({name:'Water',price:18,cat:'water',vol:1.0});
+}
+
 products.sort((a, b) => {
     let order = defaultProducts.map(x => x.name);
     return order.indexOf(a.name) - order.indexOf(b.name);
@@ -540,7 +495,7 @@ function evalExpr(v){
 function build(){
  let savedQuantities = JSON.parse(localStorage.getItem('milk_calc_quantities')) || {};
 
- ['milk','milk1l','curd','p200'].forEach(cat=>{
+ ['milk','milk1l','curd','p200','water'].forEach(cat=>{
   let html='';
   products.filter(p=>p.cat===cat).forEach((p)=>{
   let savedVal = savedQuantities[p.name] || '';
@@ -567,18 +522,18 @@ function build(){
   });
   let tabTitle = cat === 'milk' ? 'MILK 1/2 LTR' : (cat === 'milk1l' ? 'MILK 1 LTR' : cat.toUpperCase());
   html+=`<div class="card category-total-card"><b>${tabTitle} TOTAL: <span id="${cat}_total">₹0.00</span> <span id="${cat}_vtotal" style="font-weight:normal; font-size:14px; margin-left:10px;">(0.00 L)</span></b></div>`;
-  
+
   html+=`<div class="dashboard-row">
             <div class="dashboard-slide">
                 <h3>📋 Vol Breakdown</h3>
                 <ul class="liter-list-summary" id="list_${cat}"></ul>
             </div>
-            
+
             <div class="dashboard-slide">
                 <h3>📊 Visual Distribution</h3>
                 <div class="chart-wrapper"><canvas id="chart_${cat}"></canvas></div>
             </div>
-            
+
             <div class="dashboard-slide legend-slide">
                 <div class="legend-header-row">
                     <h3>🏷️ Product Index</h3>
@@ -596,7 +551,7 @@ function build(){
                 <ul class="custom-legend-list" id="legend_${cat}"></ul>
             </div>
          </div>`;
-  
+
   document.getElementById(cat).innerHTML=html;
  });
 
@@ -631,12 +586,12 @@ function attach(){
 
 function recalc(shouldSave = true){
  let grand=0, grandVol=0;
- let catTotals = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
- let catVols = { milk: 0, milk1l: 0, curd: 0, p200: 0 };
+ let catTotals = { milk: 0, milk1l: 0, curd: 0, p200: 0, water: 0 };
+ let catVols = { milk: 0, milk1l: 0, curd: 0, p200: 0, water: 0 };
  let quantitiesToSave = {};
- 
- let activeBreakdowns = { milk: '', milk1l: '', curd: '', p200: '' };
- let categorySlices = { milk: [], milk1l: [], curd: [], p200: [] };
+
+ let activeBreakdowns = { milk: '', milk1l: '', curd: '', p200: '', water: '' };
+ let categorySlices = { milk: [], milk1l: [], curd: [], p200: [], water: [] };
 
  document.querySelectorAll('input[data-name]').forEach(inp=>{
    let rawValue = inp.value;
@@ -650,32 +605,32 @@ function recalc(shouldSave = true){
    if(p){
      let tot=q*p.price;
      let itemVol = q * (p.vol || 0);
-     
+
      document.getElementById('t_'+p.name.replaceAll(' ','_')).innerText='₹'+tot.toFixed(2);
      document.getElementById('v_'+p.name.replaceAll(' ','_')).innerText=itemVol.toFixed(2) + ' L';
-     
+
      grand+=tot;
      grandVol+=itemVol;
-     
+
      if(catTotals[p.cat] !== undefined){
         catTotals[p.cat] += tot;
         catVols[p.cat] += itemVol;
      }
-     
+
      if (itemVol > 0) {
          categorySlices[p.cat].push({ name: p.name, vol: parseFloat(itemVol.toFixed(2)), price: p.price, total: tot, qty: q });
          activeBreakdowns[p.cat] += `<li class="liter-list-item"><b>${p.name}</b> <span>${itemVol.toFixed(2)} L</span></li>`;
      }
    }
  });
- 
+
  const afterDeduction = grand - 35;
 
 document.getElementById('grand').innerHTML =
 `Grand Total: ₹${grand.toFixed(2)} (-₹35) =
 <span style="
-    background:white;
-    color:#22c55e;
+    background:#22c55e;
+    color:white;
     padding:3px 8px;
     border-radius:6px;
     font-weight:800;
@@ -683,19 +638,19 @@ document.getElementById('grand').innerHTML =
 ₹${afterDeduction.toFixed(2)}
 </span>
 [ ${grandVol.toFixed(2)} L ]`;
- 
+
  const activeSection = document.querySelector('.section.active');
  const currentCatId = activeSection ? activeSection.id : 'milk';
 
  for(let cat in catTotals){
     document.getElementById(cat+'_total').innerText='₹'+catTotals[cat].toFixed(2);
     document.getElementById(cat+'_vtotal').innerText='('+catVols[cat].toFixed(2)+' L)';
-    
+
     let targetList = document.getElementById('list_'+cat);
     if(targetList) {
         targetList.innerHTML = activeBreakdowns[cat] || '<li class="liter-list-item" style="opacity:0.5; justify-content:center;">No quantities configured</li>';
     }
-    
+
     let targetLegend = document.getElementById('legend_'+cat);
     if(targetLegend) {
         let legendHtml = '';
@@ -717,7 +672,7 @@ document.getElementById('grand').innerHTML =
  if(shouldSave) {
     localStorage.setItem('milk_calc_quantities', JSON.stringify(quantitiesToSave));
  }
- 
+
  if(currentCatId !== 'settings') {
      let activeLabels = categorySlices[currentCatId].map(s => s.name);
      let activeData = categorySlices[currentCatId].map(s => s.vol);
@@ -729,8 +684,6 @@ function updateChart(labels, data, catId) {
     const canvasId = 'chart_' + catId;
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
-
-    const isLight = document.body.classList.contains('light');
 
     if (milkPieChart) {
         milkPieChart.destroy();
@@ -749,7 +702,7 @@ function updateChart(labels, data, catId) {
                 data: data,
                 backgroundColor: sliceColors.slice(0, labels.length),
                 borderWidth: 1,
-                borderColor: isLight ? '#ffffff' : '#1e293b'
+                borderColor: '#ffffff'
             }]
         },
         options: {
@@ -813,7 +766,7 @@ function exportToExcelYearlyAll() {
         "January", "February", "March", "April", "May", "June", 
         "July", "August", "September", "October", "November", "December"
     ];
-    
+
     const today = new Date();
     const currentYear = today.getFullYear();
     const currentMonthIdx = today.getMonth();
@@ -846,7 +799,7 @@ function exportToExcelYearlyAll() {
                     let q = inp ? (evalExpr(inp.value) || 0) : 0;
                     let v = q * p.vol;
                     let cost = q * p.price;
-                    
+
                     row.push(q === 0 ? "" : q);
                     row.push(cost === 0 ? "" : `₹${cost.toFixed(2)}`);
                     dailyCost += cost;
@@ -904,11 +857,6 @@ function showTab(id){
  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
  document.getElementById(id).classList.add('active');
  recalc(false); 
-}
-
-function toggleTheme(){
-    document.body.classList.toggle('light');
-    recalc(false); 
 }
 
 function resetAll(){
